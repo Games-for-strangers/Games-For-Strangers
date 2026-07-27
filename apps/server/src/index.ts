@@ -5,18 +5,17 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createSocketServer } from "./socket/handler";
 import gamesRoutes from "./routes/games";
-import scoresRoutes from "./routes/scores";
+import scoresRoutes, { getDailyScores, rateLimit as scoresRateLimit } from "./routes/scores";
 
 const app = new Hono();
 
 app.use(logger());
-app.use(
-  "/api/*",
-  cors({
-    origin: env.CORS_ORIGIN,
-    allowMethods: ["GET", "POST", "OPTIONS"],
-  }),
-);
+const corsMw = cors({
+  origin: env.CORS_ORIGIN,
+  allowMethods: ["GET", "POST", "OPTIONS"],
+});
+app.use("/api/*", corsMw);
+app.use("/daily", corsMw);
 
 app.get("/", (c) => c.text("OK"));
 
@@ -24,6 +23,7 @@ app.get("/api/health", (c) => c.json({ status: "ok" }));
 
 app.route("/api/games", gamesRoutes);
 app.route("/api/scores", scoresRoutes);
+app.get("/daily", scoresRateLimit, getDailyScores);
 
 // Hono and Socket.IO both listen on the same server.  Socket.IO handles its
 // own transport paths (/socket.io/*) via an internal engine.io listener; our

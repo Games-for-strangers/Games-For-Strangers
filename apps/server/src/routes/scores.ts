@@ -6,9 +6,7 @@ import { verifyTurnstileToken } from "../turnstile";
 
 const rateLimit = createRateLimiter(30, 60_000);
 
-const scores = new Hono();
-
-scores.get("/daily", rateLimit, async (c: Context) => {
+async function getDailyScores(c: Context) {
   const cfToken = c.req.header("x-turnstile-token");
   if (cfToken && !(await verifyTurnstileToken(cfToken))) {
     return c.json({ error: "Turnstile verification failed" }, 403);
@@ -36,6 +34,11 @@ scores.get("/daily", rateLimit, async (c: Context) => {
   ]);
 
   return c.json({ scores: topScores, total, limit, offset });
-});
+}
+
+const scores = new Hono();
+
+scores.get("/daily", rateLimit, getDailyScores);
 
 export default scores;
+export { getDailyScores, rateLimit };
