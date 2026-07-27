@@ -25,7 +25,17 @@ app.get("/api/health", (c) => c.json({ status: "ok" }));
 app.route("/api/games", gamesRoutes);
 app.route("/api/scores", scoresRoutes);
 
-const httpServer = createServer(app.fetch);
+// Hono and Socket.IO both listen on the same server.  Socket.IO handles its
+// own transport paths (/socket.io/*) via an internal engine.io listener; our
+// Hono handler must NOT touch those or it'll return a 404 before engine.io
+// gets to respond.
+const httpServer = createServer((req, res) => {
+  if (req.url?.startsWith("/socket.io")) return;
+  app.fetch(req, res).catch(() => {
+    res.statusCode = 500;
+    res.end();
+  });
+});
 createSocketServer(httpServer);
 
 const port = parseInt(env.SERVER_PORT || "3002");

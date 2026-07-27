@@ -15,18 +15,21 @@ import { UsernameDialog } from "@/components/username-dialog";
 
 const GAMES = [
   {
+    id: "geoguesser-race",
     title: "GeoGuesser Race",
     description: "Race strangers to guess the country from a Street View image.",
     icon: Globe,
     href: "/play/geoguesser-race",
   },
   {
+    id: "coming-soon-a",
     title: "Coming Soon",
     description: "A new game is on its way.",
     icon: HelpCircle,
     comingSoon: true,
   },
   {
+    id: "coming-soon-b",
     title: "Coming Soon",
     description: "Something mysterious is being built.",
     icon: HelpCircle,
@@ -38,6 +41,7 @@ export default function Home() {
   const { identity: animalIdentity, setAnimal, setIdentity, allAnimals, allColors } = useAnonymousIdentity();
   const { identity: playerIdentity, setUsername, generateAndSetUsername } = usePlayerIdentity();
   const [playerCounts, setPlayerCounts] = useState<Record<string, number>>({});
+  const [usernameDone, setUsernameDone] = useState(false);
 
   useEffect(() => {
     async function fetchCounts() {
@@ -62,8 +66,11 @@ export default function Home() {
   return (
     <PageTransition>
       <UsernameDialog
-        open={playerIdentity?.isFirstVisit || (playerIdentity !== null && !playerIdentity.username)}
-        onConfirm={setUsername}
+        open={playerIdentity !== null && !usernameDone && (!playerIdentity.username || playerIdentity.isFirstVisit)}
+        onConfirm={(name) => {
+          setUsername(name);
+          setUsernameDone(true);
+        }}
         onGenerate={generateAndSetUsername}
       />
       <main className="mx-auto flex w-full max-w-lg flex-col justify-center px-5 sm:px-6">
@@ -100,7 +107,7 @@ export default function Home() {
             const activePlayers = slug ? playerCounts[slug] : 0;
             return (
               <GameCard
-                key={game.title}
+                key={game.id}
                 title={game.title}
                 description={
                   activePlayers > 0 && !game.comingSoon

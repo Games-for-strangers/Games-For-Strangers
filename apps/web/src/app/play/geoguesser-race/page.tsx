@@ -32,6 +32,7 @@ interface WinnerEntry {
 export default function WhereIsThis() {
   const { identity: animalIdentity, setAnimal, setIdentity, allAnimals, allColors } = useAnonymousIdentity();
   const { identity: playerIdentity, setUsername, generateAndSetUsername } = usePlayerIdentity();
+  const [usernameDone, setUsernameDone] = useState(false);
   const [phase, setPhase] = useState<GamePhase>("connecting");
   const [playerCount, setPlayerCount] = useState(0);
   const [roundId, setRoundId] = useState<string | null>(null);
@@ -130,8 +131,11 @@ export default function WhereIsThis() {
   return (
     <PageTransition>
       <UsernameDialog
-        open={playerIdentity.isFirstVisit || !playerIdentity.username}
-        onConfirm={setUsername}
+        open={!usernameDone && (playerIdentity.isFirstVisit || !playerIdentity.username)}
+        onConfirm={(name) => {
+          setUsername(name);
+          setUsernameDone(true);
+        }}
         onGenerate={generateAndSetUsername}
       />
       <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
