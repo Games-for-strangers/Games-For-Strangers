@@ -1,10 +1,10 @@
 [
-  { "country": "Japan", "city": "Tokyo", "landmark": "Shibuya Crossing", "query": "Shibuya Crossing Tokyo" },
+  { "country": "Japan", "city": "Tokyo", "landmark": "Shibuya Crossing", "query": "Shibuya Crossing Tokyo", "categories": ["Streets in Tokyo", "Views of Tokyo", "Street scenes in Tokyo"] },
   { "country": "Japan", "city": "Kyoto", "landmark": "Bamboo Grove", "query": "Arashiyama Bamboo Grove Kyoto" },
   { "country": "Japan", "city": "Kyoto", "landmark": "Fushimi Inari", "query": "Fushimi Inari Shrine Kyoto" },
   { "country": "Japan", "city": "Osaka", "landmark": "Dotonbori", "query": "Dotonbori Osaka" },
   { "country": "Japan", "city": "Mount Fuji", "landmark": "Mount Fuji", "query": "Mount Fuji Japan" },
-  { "country": "France", "city": "Paris", "landmark": "Eiffel Tower", "query": "Eiffel Tower Paris" },
+  { "country": "France", "city": "Paris", "landmark": "Eiffel Tower", "query": "Eiffel Tower Paris", "categories": ["Streets in Paris", "Views of Paris", "Street scenes in Paris"] },
   { "country": "France", "city": "Paris", "landmark": "Louvre Museum", "query": "Louvre Museum Paris" },
   { "country": "France", "city": "Paris", "landmark": "Arc de Triomphe", "query": "Arc de Triomphe Paris" },
   { "country": "France", "city": "Marseille", "landmark": "Old Port", "query": "Vieux Port Marseille" },
