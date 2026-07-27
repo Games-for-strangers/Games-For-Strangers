@@ -1,6 +1,6 @@
 [
   {
-    "url": "/images/locations/tokyo-shibuya.jpg",
+    "url": "https://picsum.photos/seed/tokyo/800/600",
     "country": "Japan",
     "city": "Tokyo",
     "landmark": "Shibuya Crossing",
@@ -8,7 +8,7 @@
     "funFact": "Shibuya Crossing sees up to 3,000 people crossing at once during peak hours."
   },
   {
-    "url": "/images/locations/paris-eiffel.jpg",
+    "url": "https://picsum.photos/seed/paris/800/600",
     "country": "France",
     "city": "Paris",
     "landmark": "Eiffel Tower",
@@ -16,7 +16,7 @@
     "funFact": "The Eiffel Tower was originally built as a temporary exhibit for the 1889 World's Fair."
   },
   {
-    "url": "/images/locations/london-bridge.jpg",
+    "url": "https://picsum.photos/seed/london-bridge/800/600",
     "country": "United Kingdom",
     "city": "London",
     "landmark": "Tower Bridge",
@@ -24,7 +24,7 @@
     "funFact": "Tower Bridge opens about 800 times a year to let ships pass through."
   },
   {
-    "url": "/images/locations/rome-colosseum.jpg",
+    "url": "https://picsum.photos/seed/rome-colosseum/800/600",
     "country": "Italy",
     "city": "Rome",
     "landmark": "Colosseum",
@@ -32,7 +32,7 @@
     "funFact": "The Colosseum could hold up to 80,000 spectators, making it the largest amphitheater ever built."
   },
   {
-    "url": "/images/locations/newyork-timesquare.jpg",
+    "url": "https://picsum.photos/seed/newyork-timesquare/800/600",
     "country": "United States",
     "city": "New York City",
     "landmark": "Times Square",
@@ -40,7 +40,7 @@
     "funFact": "Times Square is named after the New York Times, which moved its headquarters there in 1904."
   },
   {
-    "url": "/images/locations/sydney-opera.jpg",
+    "url": "https://picsum.photos/seed/sydney-opera/800/600",
     "country": "Australia",
     "city": "Sydney",
     "landmark": "Sydney Opera House",
@@ -48,7 +48,7 @@
     "funFact": "The Sydney Opera House has over 1 million roof tiles arranged in a chevron pattern."
   },
   {
-    "url": "/images/locations/dubai-burj.jpg",
+    "url": "https://picsum.photos/seed/dubai-burj/800/600",
     "country": "United Arab Emirates",
     "city": "Dubai",
     "landmark": "Burj Khalifa",
@@ -56,7 +56,7 @@
     "funFact": "The Burj Khalifa is so tall that its residents can break their fast up to 3 minutes later than those at ground level."
   },
   {
-    "url": "/images/locations/beijing-forbidden.jpg",
+    "url": "https://picsum.photos/seed/beijing-forbidden/800/600",
     "country": "China",
     "city": "Beijing",
     "landmark": "Forbidden City",
@@ -64,7 +64,7 @@
     "funFact": "The Forbidden City has 9,999 rooms — just one short of the mythical 10,000 rooms of heaven."
   },
   {
-    "url": "/images/locations/rio-christ.jpg",
+    "url": "https://picsum.photos/seed/rio-christ/800/600",
     "country": "Brazil",
     "city": "Rio de Janeiro",
     "landmark": "Christ the Redeemer",
@@ -72,7 +72,7 @@
     "funFact": "Christ the Redeemer stands 30 meters tall and was struck by lightning during a storm in 2014."
   },
   {
-    "url": "/images/locations/cairo-pyramids.jpg",
+    "url": "https://picsum.photos/seed/cairo-pyramids/800/600",
     "country": "Egypt",
     "city": "Cairo",
     "landmark": "Great Pyramids of Giza",
@@ -80,7 +80,7 @@
     "funFact": "The Great Pyramid was the tallest man-made structure in the world for over 3,800 years."
   },
   {
-    "url": "/images/locations/amsterdam-canal.jpg",
+    "url": "https://picsum.photos/seed/amsterdam-canal/800/600",
     "country": "Netherlands",
     "city": "Amsterdam",
     "landmark": "Canal Ring (Grachtengordel)",
@@ -88,7 +88,7 @@
     "funFact": "Amsterdam has over 100 kilometers of canals and about 1,500 bridges."
   },
   {
-    "url": "/images/locations/santorini-blue.jpg",
+    "url": "https://picsum.photos/seed/santorini-blue/800/600",
     "country": "Greece",
     "city": "Santorini",
     "landmark": "Oia Village",
@@ -96,7 +96,7 @@
     "funFact": "Santorini's iconic blue-domed churches were painted that color to keep the buildings cool."
   },
   {
-    "url": "/images/locations/machupicchu.jpg",
+    "url": "https://picsum.photos/seed/machupicchu/800/600",
     "country": "Peru",
     "city": "Cusco",
     "landmark": "Machu Picchu",
@@ -104,7 +104,7 @@
     "funFact": "Machu Picchu was never discovered by Spanish colonizers — it was unknown to the outside world until 1911."
   },
   {
-    "url": "/images/locations/venice-grand.jpg",
+    "url": "https://picsum.photos/seed/venice-grand/800/600",
     "country": "Italy",
     "city": "Venice",
     "landmark": "Grand Canal",
@@ -112,7 +112,7 @@
     "funFact": "Venice is built on 118 small islands connected by over 400 bridges."
   },
   {
-    "url": "/images/locations/sanfrancisco-golden.jpg",
+    "url": "https://picsum.photos/seed/sanfrancisco-golden/800/600",
     "country": "United States",
     "city": "San Francisco",
     "landmark": "Golden Gate Bridge",
@@ -120,7 +120,7 @@
     "funFact": "The Golden Gate Bridge's signature color 'International Orange' was originally a primer coat."
   },
   {
-    "url": "/images/locations/moscow-stbasil.jpg",
+    "url": "https://picsum.photos/seed/moscow-stbasil/800/600",
     "country": "Russia",
     "city": "Moscow",
     "landmark": "Saint Basil's Cathedral",
@@ -128,7 +128,7 @@
     "funFact": "Legend says Ivan the Terrible had the architect blinded so he could never build anything more beautiful."
   },
   {
-    "url": "/images/locations/mumbai-gateway.jpg",
+    "url": "https://picsum.photos/seed/mumbai-gateway/800/600",
     "country": "India",
     "city": "Mumbai",
     "landmark": "Gateway of India",
@@ -136,7 +136,7 @@
     "funFact": "The Gateway of India was built to commemorate the visit of King George V in 1911."
   },
   {
-    "url": "/images/locations/barcelona-sagrada.jpg",
+    "url": "https://picsum.photos/seed/barcelona-sagrada/800/600",
     "country": "Spain",
     "city": "Barcelona",
     "landmark": "Sagrada Familia",
@@ -144,7 +144,7 @@
     "funFact": "The Sagrada Familia has been under construction since 1882 and is still not finished."
   },
   {
-    "url": "/images/locations/seoul-gyeongbok.jpg",
+    "url": "https://picsum.photos/seed/seoul-gyeongbok/800/600",
     "country": "South Korea",
     "city": "Seoul",
     "landmark": "Gyeongbokgung Palace",
@@ -152,7 +152,7 @@
     "funFact": "Gyeongbokgung was built in 1395 and was the main royal palace of the Joseon dynasty."
   },
   {
-    "url": "/images/locations/istanbul-hagia.jpg",
+    "url": "https://picsum.photos/seed/istanbul-hagia/800/600",
     "country": "Turkey",
     "city": "Istanbul",
     "landmark": "Hagia Sophia",
@@ -160,7 +160,7 @@
     "funFact": "Hagia Sophia served as a church for 916 years, a mosque for 481 years, and now a museum."
   },
   {
-    "url": "/images/locations/bangkok-wat.jpg",
+    "url": "https://picsum.photos/seed/bangkok-wat/800/600",
     "country": "Thailand",
     "city": "Bangkok",
     "landmark": "Wat Arun (Temple of Dawn)",
@@ -168,7 +168,7 @@
     "funFact": "Wat Arun is named after Aruna, the Hindu god of the dawn, and sparkles with over 100,000 porcelain tiles."
   },
   {
-    "url": "/images/locations/berlin-wall.jpg",
+    "url": "https://picsum.photos/seed/berlin-wall/800/600",
     "country": "Germany",
     "city": "Berlin",
     "landmark": "East Side Gallery (Berlin Wall)",
@@ -176,7 +176,7 @@
     "funFact": "The Berlin Wall fell in 1989, and the East Side Gallery is the longest open-air gallery in the world."
   },
   {
-    "url": "/images/locations/hongkong-harbour.jpg",
+    "url": "https://picsum.photos/seed/hongkong-harbour/800/600",
     "country": "Hong Kong",
     "city": "Hong Kong",
     "landmark": "Victoria Harbour",
@@ -184,7 +184,7 @@
     "funFact": "Hong Kong has the world's longest urban area cable car system — the Ngong Ping 360."
   },
   {
-    "url": "/images/locations/toronto-cn.jpg",
+    "url": "https://picsum.photos/seed/toronto-cn/800/600",
     "country": "Canada",
     "city": "Toronto",
     "landmark": "CN Tower",
@@ -192,7 +192,7 @@
     "funFact": "The CN Tower was the world's tallest freestanding structure until 2007."
   },
   {
-    "url": "/images/locations/cape-town-table.jpg",
+    "url": "https://picsum.photos/seed/cape-town-table/800/600",
     "country": "South Africa",
     "city": "Cape Town",
     "landmark": "Table Mountain",
