@@ -3,33 +3,47 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
-interface PlayerCountEvent {
+export interface PlayerCountEvent {
   count: number;
 }
 
-interface NewRoundEvent {
+export interface NewRoundEvent {
   imageUrl: string;
   roundId: string;
   endTime: number;
   city: string;
   country: string;
   landmark: string;
+  hints: string[];
+  lat: number;
+  lng: number;
 }
 
-interface GuessResultEvent {
+export interface GuessResultEvent {
   animal: string;
   time: number;
   correct: boolean;
   blurred: boolean;
 }
 
-interface RoundEndEvent {
+export interface GuessInfo {
+  animal: string;
+  username: string;
+  guess: string;
+  correct: boolean;
+  time: number;
+}
+
+export interface RoundEndEvent {
   winner: { animal: string; username: string; time: number; playerId: string } | null;
   answer: string;
   city: string;
   landmark: string;
   region: string;
   funFact: string;
+  lat: number;
+  lng: number;
+  guesses: GuessInfo[];
   scores: { playerId: string; username: string; score: number }[];
   nextRoundAt: number;
 }

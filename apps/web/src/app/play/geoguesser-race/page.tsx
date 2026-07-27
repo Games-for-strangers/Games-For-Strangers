@@ -12,9 +12,11 @@ import { UsernameDialog } from "@/components/username-dialog";
 import type { RoundEndEvent } from "@/hooks/use-socket";
 import { useSocket } from "@/hooks/use-socket";
 import { useSoundEffect } from "@/hooks/use-sound-effect";
+import { useHintTokens } from "@/hooks/use-hint-tokens";
 import type { GuessFeedbackState } from "./components/guess-feedback";
 import { GuessFeedback } from "./components/guess-feedback";
 import { GuessInput } from "./components/guess-input";
+import { HintSystem } from "./components/hint-system";
 import { RoundEndOverlay } from "./components/round-end-overlay";
 import { StreetViewImage } from "./components/street-view-image";
 import { TimerBar } from "./components/timer-bar";
@@ -44,13 +46,15 @@ export default function WhereIsThis() {
   const [guessFeedback, setGuessFeedback] = useState<GuessFeedbackState>({ type: "idle" });
   const [roundEndData, setRoundEndData] = useState<RoundEndEvent | null>(null);
   const [winnerEntries, setWinnerEntries] = useState<WinnerEntry[]>([]);
+  const [hints, setHints] = useState<string[]>([]);
+  const { tokens, earnForRound, spendToken } = useHintTokens();
   const play = useSoundEffect();
 
   const onPlayerCount = useCallback((data: { count: number }) => {
     setPlayerCount(data.count);
   }, []);
 
-  const onNewRound = useCallback((data: { imageUrl: string; roundId: string; endTime: number; city: string; country: string; landmark: string }) => {
+  const onNewRound = useCallback((data: { imageUrl: string; roundId: string; endTime: number; city: string; country: string; landmark: string; hints: string[] }) => {
     setImageUrl(data.imageUrl);
     setImageMeta({ city: data.city, country: data.country, landmark: data.landmark });
     setRoundId(data.roundId);
@@ -58,8 +62,10 @@ export default function WhereIsThis() {
     setPhase("playing");
     setGuessFeedback({ type: "idle" });
     setRoundEndData(null);
+    setHints(data.hints ?? []);
+    earnForRound();
     play("round-start");
-  }, [play]);
+  }, [play, earnForRound]);
 
   const onGuessResult = useCallback(
     (data: { animal: string; time: number; correct: boolean; blurred: boolean }) => {
@@ -206,13 +212,30 @@ export default function WhereIsThis() {
                   />
                 ) : null}
 
-                <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:items-center">
-                  <GuessInput
-                    onSubmit={handleGuess}
-                    disabled={phase === "guessed" || phase === "roundEnd" || !socket.connected}
-                  />
+                <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:items-start">
+                    <div className="flex w-full flex-col gap-2 sm:max-w-md">
+                      <GuessInput
+                        onSubmit={handleGuess}
+                        disabled={phase === "guessed" || phase === "roundEnd" || !socket.connected}
+                      />
+                    </div>
                   <GuessFeedback state={guessFeedback} />
                 </div>
+
+                {hints.length > 0 ? (
+                  <div className="mt-2 w-full sm:max-w-md">
+                    <div className="flex items-center gap-2 text-[11px] text-text-muted">
+                      <span>🔍</span>
+                      <span>Stuck? Use a hint</span>
+                      <span className="ml-auto rounded bg-brand-violet/10 px-1.5 py-0.5 font-mono">
+                        {tokens} tokens
+                      </span>
+                    </div>
+                    <div className="mt-1.5">
+                      <HintSystem hints={hints} tokens={tokens} onSpendToken={spendToken} />
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
           ) : null}

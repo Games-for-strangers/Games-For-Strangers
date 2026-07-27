@@ -2,6 +2,7 @@ import type { Server as SocketIOServer, Socket } from "socket.io";
 import prisma from "@gamesforstrangers/db";
 import { gameState } from "../state";
 import { LOCATIONS } from "../locations";
+import { generateHints, getLocationCoords } from "../geo-data";
 
 interface PlayerInfo {
   animal: string;
@@ -35,6 +36,9 @@ interface RoundState {
   funFact: string;
   startedAt: Date;
   guesses: GuessEntry[];
+  hints: string[];
+  lat: number;
+  lng: number;
 }
 
 const GAME_SLUG = "geoguesser-race";
@@ -76,17 +80,32 @@ export class RoundManager {
   }
 
   async init() {
-    this.locationRounds = LOCATIONS.map((loc) => ({
-      roundId: makeRoundId(),
-      imageUrl: loc.url,
-      answer: loc.country,
-      city: loc.city,
-      landmark: loc.landmark,
-      region: loc.region,
-      funFact: loc.funFact,
-      startedAt: new Date(),
-      guesses: [],
-    }));
+    const coordsCache = new Map<string, { lat: number; lng: number }>();
+    const hintsCache = new Map<string, string[]>();
+    this.locationRounds = LOCATIONS.map((loc) => {
+      const cacheKey = `${loc.country}:${loc.city}`;
+      if (!coordsCache.has(cacheKey)) {
+        coordsCache.set(cacheKey, getLocationCoords(loc.country, loc.city));
+      }
+      if (!hintsCache.has(loc.country)) {
+        hintsCache.set(loc.country, generateHints(loc.country));
+      }
+      const coords = coordsCache.get(cacheKey)!;
+      return {
+        roundId: makeRoundId(),
+        imageUrl: loc.url,
+        answer: loc.country,
+        city: loc.city,
+        landmark: loc.landmark,
+        region: loc.region,
+        funFact: loc.funFact,
+        startedAt: new Date(),
+        guesses: [],
+        hints: hintsCache.get(loc.country)!,
+        lat: coords.lat,
+        lng: coords.lng,
+      };
+    });
     console.log(`Loaded ${this.locationRounds.length} locations from hard-coded data`);
     this.startCycle();
   }
@@ -106,10 +125,20 @@ export class RoundManager {
     } while (this.usedIndices.has(idx));
 
     this.usedIndices.add(idx);
+    const src = this.locationRounds[idx]!;
     return {
-      ...this.locationRounds[idx],
       roundId: makeRoundId(),
       guesses: [],
+      imageUrl: src.imageUrl,
+      answer: src.answer,
+      city: src.city,
+      landmark: src.landmark,
+      region: src.region,
+      funFact: src.funFact,
+      startedAt: src.startedAt,
+      hints: src.hints,
+      lat: src.lat,
+      lng: src.lng,
     };
   }
 
@@ -137,6 +166,9 @@ export class RoundManager {
         city: room.currentRound.city,
         country: room.currentRound.answer,
         landmark: room.currentRound.landmark,
+        hints: room.currentRound.hints,
+        lat: room.currentRound.lat,
+        lng: room.currentRound.lng,
       });
     }
   }
@@ -297,6 +329,15 @@ export class RoundManager {
       landmark: round.landmark,
       region: round.region,
       funFact: round.funFact,
+      lat: round.lat,
+      lng: round.lng,
+      guesses: round.guesses.map((g) => ({
+        animal: g.animal,
+        username: g.username,
+        guess: g.guess,
+        correct: g.correct,
+        time: g.time,
+      })),
       scores,
       nextRoundAt: Date.now() + SCOREBOARD_DURATION_MS,
     });
@@ -342,7 +383,16 @@ export class RoundManager {
     const startedAt = new Date();
 
     room.currentRound = {
-      ...location,
+      roundId: location.roundId,
+      imageUrl: location.imageUrl,
+      answer: location.answer,
+      city: location.city,
+      landmark: location.landmark,
+      region: location.region,
+      funFact: location.funFact,
+      hints: location.hints,
+      lat: location.lat,
+      lng: location.lng,
       startedAt,
       guesses: [],
     };
@@ -354,6 +404,9 @@ export class RoundManager {
       city: location.city,
       country: location.answer,
       landmark: location.landmark,
+      hints: location.hints,
+      lat: location.lat,
+      lng: location.lng,
     });
 
     // Force end after round duration

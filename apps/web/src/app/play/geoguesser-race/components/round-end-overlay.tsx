@@ -1,8 +1,14 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { RoundEndEvent } from "@/hooks/use-socket";
+
+const ReviewMap = dynamic(
+  () => import("./review-map").then((m) => m.ReviewMap),
+  { ssr: false, loading: () => <div className="h-48 w-full animate-pulse rounded-xl bg-white/5 sm:h-56" /> },
+);
 
 const CIRCUMFERENCE = 2 * Math.PI * 40;
 
@@ -38,6 +44,10 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
   const progress = Math.max(0, Math.min(1, countdownMs / 10_000));
   const seconds = Math.max(0, Math.ceil(countdownMs / 1000));
 
+  const playerGuess = playerId && data.guesses
+    ? data.guesses.find((g) => g.username === playerId)
+    : undefined;
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -45,38 +55,81 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
-      <div className="mx-auto w-full max-w-md space-y-6 px-6 text-center">
-        {data.winner ? (
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.3 }}
-            className="space-y-2"
-          >
-            <p className="text-4xl">{data.winner.animal}</p>
-            <p className="text-lg font-bold">
-              {isWinner ? "You got it!" : `${data.winner.username} got it!`}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {((data.winner.time) / 1000).toFixed(1)}s
-            </p>
-          </motion.div>
-        ) : (
-          <p className="text-lg font-bold">Time&apos;s up!</p>
-        )}
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-8">
+        {/* Answer card */}
+        <div className="space-y-4 text-center">
+          {data.winner ? (
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, duration: 0.3 }}
+              className="space-y-1"
+            >
+              <p className="text-3xl sm:text-4xl">{data.winner.animal}</p>
+              <p className="text-lg font-bold">
+                {isWinner ? "You got it!" : `${data.winner.username} got it!`}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {((data.winner.time) / 1000).toFixed(1)}s
+              </p>
+            </motion.div>
+          ) : (
+            <p className="text-lg font-bold">Time&apos;s up!</p>
+          )}
 
-        <div className="rounded-xl bg-muted p-4">
-          <p className="text-xs text-muted-foreground">The answer was</p>
-          <p className="mt-1 text-2xl font-bold">{data.answer}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {data.city}, {data.landmark}
-          </p>
+          <div className="rounded-xl bg-muted p-4">
+            <p className="text-xs text-muted-foreground">The answer was</p>
+            <p className="mt-1 text-2xl font-bold">{data.answer}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {data.city}, {data.landmark}
+            </p>
+          </div>
         </div>
 
-        {data.funFact ? (
-          <p className="text-xs italic text-muted-foreground">&ldquo;{data.funFact}&rdquo;</p>
+        {/* Map */}
+        {data.lat != null && data.lng != null ? (
+          <ReviewMap
+            lat={data.lat}
+            lng={data.lng}
+            city={data.city}
+            country={data.answer}
+            guesses={data.guesses}
+          />
         ) : null}
 
+        {/* Fun fact + guesses row */}
+        <div className="flex flex-col gap-3 sm:flex-row">
+          {data.funFact ? (
+            <div className="flex-1 rounded-xl bg-white/5 px-3 py-2">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Did you know?</p>
+              <p className="mt-1 text-xs italic text-text-secondary">
+                &ldquo;{data.funFact}&rdquo;
+              </p>
+            </div>
+          ) : null}
+
+          {data.guesses && data.guesses.length > 0 ? (
+            <div className="flex-1 rounded-xl bg-white/5 px-3 py-2">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Guesses</p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {data.guesses.map((g, i) => (
+                  <span
+                    key={i}
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ${
+                      g.correct
+                        ? "bg-green-500/15 text-green-400"
+                        : "bg-red-500/10 text-red-400"
+                    }`}
+                  >
+                    {g.animal} {g.guess}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Leaderboard */}
         {data.scores.length > 0 ? (
           <div className="space-y-1">
             <p className="text-xs font-medium text-muted-foreground">Today&apos;s strangers</p>
@@ -98,8 +151,9 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
           </div>
         ) : null}
 
+        {/* Countdown */}
         <div className="flex flex-col items-center gap-1">
-          <svg width="64" height="64" viewBox="0 0 100 100" className="-rotate-90">
+          <svg width="56" height="56" viewBox="0 0 100 100" className="-rotate-90">
             <circle
               cx="50"
               cy="50"
