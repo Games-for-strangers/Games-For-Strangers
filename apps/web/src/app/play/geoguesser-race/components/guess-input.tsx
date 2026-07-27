@@ -19,7 +19,7 @@ export function GuessInput({ onSubmit, disabled }: GuessInputProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-md gap-2">
+    <form onSubmit={handleSubmit} className="flex w-full flex-col gap-2 sm:max-w-md sm:flex-row">
       <input
         ref={inputRef}
         type="text"
@@ -27,12 +27,12 @@ export function GuessInput({ onSubmit, disabled }: GuessInputProps) {
         disabled={disabled}
         autoComplete="off"
         spellCheck={false}
-        className="flex-1 rounded-xl border border-input bg-background px-4 py-3 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:opacity-40"
+        className="w-full flex-1 rounded-xl border border-input bg-background px-4 py-3 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:opacity-40"
       />
       <button
         type="submit"
         disabled={disabled}
-        className="rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+        className="w-full rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40 sm:w-auto"
       >
         Guess
       </button>

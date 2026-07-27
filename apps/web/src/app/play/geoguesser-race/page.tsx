@@ -200,7 +200,7 @@ export default function WhereIsThis() {
                   />
                 ) : null}
 
-                <div className="flex items-center gap-3">
+                <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:items-center">
                   <GuessInput
                     onSubmit={handleGuess}
                     disabled={phase === "guessed" || phase === "roundEnd" || !socket.connected}
