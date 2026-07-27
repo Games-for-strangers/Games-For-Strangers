@@ -14,7 +14,7 @@ export default function About() {
         </p>
 
         <p>
-          No accounts. No passwords. No usernames. You show up as an animal emoji with a
+          No accounts. No passwords. No usernames. You show up as an animal with a
           splash of color, pick a game, and instantly play with strangers from around the world.
         </p>
 
@@ -29,7 +29,7 @@ export default function About() {
             rel="noopener noreferrer"
             className="inline-block rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
           >
-            Support on Ko-fi ☕
+            Support on Ko-fi
           </a>
         </div>
 

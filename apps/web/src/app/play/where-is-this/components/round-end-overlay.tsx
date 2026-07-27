@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import type { RoundEndEvent } from "@/hooks/use-socket";
 
 interface RoundEndOverlayProps {
@@ -9,12 +11,40 @@ interface RoundEndOverlayProps {
 
 export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
   const isWinner = data.winner !== null && data.winner.playerId === playerId;
+  const [countdown, setCountdown] = useState<number>(() => {
+    const remaining = data.nextRoundAt - Date.now();
+    return Math.max(0, Math.ceil(remaining / 1000));
+  });
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const id = setInterval(() => {
+      const remaining = data.nextRoundAt - Date.now();
+      if (remaining <= 0) {
+        setCountdown(0);
+        clearInterval(id);
+      } else {
+        setCountdown(Math.ceil(remaining / 1000));
+      }
+    }, 200);
+    return () => clearInterval(id);
+  }, [data.nextRoundAt, countdown]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+    >
       <div className="mx-auto w-full max-w-md space-y-6 px-6 text-center">
         {data.winner ? (
-          <div className="space-y-2">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+            className="space-y-2"
+          >
             <p className="text-4xl">{data.winner.animal}</p>
             <p className="text-lg font-bold">
               {isWinner ? "You won!" : `${data.winner.animal} got it first!`}
@@ -22,7 +52,7 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
             <p className="text-sm text-muted-foreground">
               in {((data.winner.time) / 1000).toFixed(1)}s
             </p>
-          </div>
+          </motion.div>
         ) : (
           <p className="text-lg font-bold">Time&apos;s up!</p>
         )}
@@ -58,8 +88,10 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
           </div>
         ) : null}
 
-        <p className="text-xs text-muted-foreground">Next round starting soon...</p>
+        <p className="text-xs text-muted-foreground">
+          Next round in <span className="font-mono font-medium">{countdown}s</span>
+        </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

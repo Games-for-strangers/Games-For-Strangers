@@ -1,5 +1,6 @@
 "use client";
 
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
 interface WinnerEntry {
@@ -27,15 +28,24 @@ export function WinnerStrip({ entries }: WinnerStripProps) {
     return () => clearTimeout(timer);
   }, [entries]);
 
-  if (!visible) return null;
-
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 p-4">
-      <div className="mx-auto max-w-md rounded-xl bg-foreground/10 px-4 py-2 text-center text-sm backdrop-blur-sm">
-        <span className="font-medium">{visible.animal}</span> guessed{" "}
-        <span className="font-medium">{visible.country}</span> in{" "}
-        <span className="font-medium">{((visible.time) / 1000).toFixed(1)}s</span>
-      </div>
+      <AnimatePresence>
+        {visible ? (
+          <motion.div
+            key={visible.id}
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 40, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="mx-auto max-w-md rounded-xl bg-foreground/10 px-4 py-2 text-center text-sm backdrop-blur-sm"
+          >
+            <span className="font-medium">{visible.animal}</span> guessed{" "}
+            <span className="font-medium">{visible.country}</span> in{" "}
+            <span className="font-medium">{((visible.time) / 1000).toFixed(1)}s</span>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

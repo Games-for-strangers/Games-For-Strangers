@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 
 const ANIMALS = [
-  "🦊", "🐸", "🦝", "🐨", "🦁",
-  "🐯", "🐱", "🐶", "🐺", "🐻",
-  "🐼", "🐹", "🐰", "🦄", "🐙",
-  "🦋", "🐢", "🦉", "🐧", "🦥",
+  "Fox", "Frog", "Raccoon", "Koala", "Lion",
+  "Tiger", "Cat", "Dog", "Wolf", "Bear",
+  "Panda", "Hamster", "Rabbit", "Unicorn", "Octopus",
+  "Butterfly", "Turtle", "Owl", "Penguin", "Sloth",
 ] as const;
 
 const COLORS = [

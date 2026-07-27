@@ -1,5 +1,4 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
-import type { DefaultEventsMap } from "socket.io/dist/typed-events";
 import prisma from "@gamesforstrangers/db";
 import { gameState } from "../state";
 
@@ -45,6 +44,7 @@ export class RoundManager {
   private locationRounds: RoundState[] = [];
   private usedIndices: Set<number> = new Set();
   private timer: ReturnType<typeof setInterval> | null = null;
+  private dbGameId: string | null = null;
 
   constructor(io: SocketIOServer) {
     this.io = io;
@@ -56,8 +56,17 @@ export class RoundManager {
   }
 
   private async loadLocations() {
+    const game = await prisma.game.findUnique({
+      where: { slug: GAME_SLUG },
+    });
+    if (!game) {
+      console.error(`Game "${GAME_SLUG}" not found in DB. Run pnpm db:seed first.`);
+      return;
+    }
+    this.dbGameId = game.id;
+
     const rounds = await prisma.round.findMany({
-      where: { game: { slug: GAME_SLUG } },
+      where: { gameId: game.id },
     });
 
     this.locationRounds = rounds.map((r) => ({
@@ -216,7 +225,7 @@ export class RoundManager {
 
   private async finishRound(gameId: string) {
     const room = this.rooms.get(gameId);
-    if (!room || !room.currentRound) return;
+    if (!room || !room.currentRound || !this.dbGameId) return;
 
     const round = room.currentRound;
     const winner = round.guesses.find((g) => g.correct);
@@ -239,7 +248,7 @@ export class RoundManager {
           where: {
             playerId_gameId_date: {
               playerId: winner.playerId,
-              gameId: gameId,
+              gameId: this.dbGameId,
               date: today,
             },
           },
@@ -254,7 +263,7 @@ export class RoundManager {
           await prisma.dailyScore.create({
             data: {
               playerId: winner.playerId,
-              gameId: gameId,
+              gameId: this.dbGameId,
               score: 1,
               date: today,
             },
@@ -265,7 +274,7 @@ export class RoundManager {
       }
     }
 
-    const scores = await this.getScores(gameId);
+    const scores = await this.getScores();
 
     this.io.to(gameId).emit("round-end", {
       winner: winner
@@ -277,17 +286,19 @@ export class RoundManager {
       region: round.region,
       funFact: round.funFact,
       scores,
+      nextRoundAt: Date.now() + SCOREBOARD_DURATION_MS,
     });
   }
 
-  private async getScores(gameId: string) {
+  private async getScores() {
+    if (!this.dbGameId) return [];
     try {
       const today = new Date();
       today.setUTCHours(0, 0, 0, 0);
 
       const topScores = await prisma.dailyScore.findMany({
         where: {
-          gameId,
+          gameId: this.dbGameId,
           date: today,
         },
         orderBy: { score: "desc" },

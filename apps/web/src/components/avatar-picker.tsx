@@ -29,10 +29,10 @@ export function AvatarPicker({
         className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm transition-colors hover:bg-muted"
       >
         <span
-          className="inline-flex h-6 w-6 items-center justify-center rounded-full text-sm"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-muted-foreground"
           style={{ backgroundColor: currentColor }}
         >
-          {currentAnimal}
+          {currentAnimal.charAt(0).toUpperCase()}
         </span>
         <Settings className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
@@ -42,15 +42,21 @@ export function AvatarPicker({
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border bg-popover p-4 shadow-lg">
             <p className="mb-2 text-xs font-medium text-muted-foreground">Pick your animal</p>
-            <div className="mb-4 grid grid-cols-5 gap-1">
+            <div className="mb-4 grid grid-cols-4 gap-1">
               {allAnimals.map((a) => (
                 <button
                   key={a}
                   onClick={() => onSelectAnimal(a)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg transition-colors hover:bg-muted ${
-                    a === currentAnimal ? "ring-2 ring-ring" : ""
+                  className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-muted ${
+                    a === currentAnimal ? "bg-muted font-semibold" : ""
                   }`}
                 >
+                  <span
+                    className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-muted-foreground"
+                    style={{ backgroundColor: currentColor }}
+                  >
+                    {a.charAt(0).toUpperCase()}
+                  </span>
                   {a}
                 </button>
               ))}

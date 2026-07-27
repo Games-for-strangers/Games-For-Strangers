@@ -5,6 +5,7 @@ import { useAnonymousIdentity } from "@gamesforstrangers/ui/hooks/use-anonymous-
 import { AvatarPicker } from "@/components/avatar-picker";
 import { IdentityDisplay } from "@/components/identity-display";
 import { LoadingScreen } from "@/components/loading-screen";
+import { PageTransition } from "@/components/page-transition";
 import type { RoundEndEvent } from "@/hooks/use-socket";
 import { useSocket } from "@/hooks/use-socket";
 import type { GuessFeedbackState } from "./components/guess-feedback";
@@ -109,12 +110,14 @@ export default function WhereIsThis() {
   }
 
   return (
+    <PageTransition>
     <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium">Where Is This?</span>
-          <span className="text-xs text-muted-foreground">
-            🟢 {playerCount} online
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            {playerCount} online
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -185,5 +188,6 @@ export default function WhereIsThis() {
 
       <WinnerStrip entries={winnerEntries} />
     </div>
+    </PageTransition>
   );
 }

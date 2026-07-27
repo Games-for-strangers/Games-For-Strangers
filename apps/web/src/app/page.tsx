@@ -1,5 +1,8 @@
 "use client";
 
+import { Globe, HelpCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { PageTransition } from "@/components/page-transition";
 import { useEffect, useState } from "react";
 import { useAnonymousIdentity } from "@gamesforstrangers/ui/hooks/use-anonymous-identity";
 import { AvatarPicker } from "@/components/avatar-picker";
@@ -10,19 +13,19 @@ const GAMES = [
   {
     title: "Where Is This?",
     description: "Race strangers to guess the country from a Street View image.",
-    emoji: "🌍",
+    icon: Globe,
     href: "/play/where-is-this",
   },
   {
     title: "Coming Soon",
     description: "A new game is on its way.",
-    emoji: "❓",
+    icon: HelpCircle,
     comingSoon: true,
   },
   {
     title: "Coming Soon",
     description: "Something mysterious is being built.",
-    emoji: "❓",
+    icon: HelpCircle,
     comingSoon: true,
   },
 ] as const;
@@ -52,6 +55,7 @@ export default function Home() {
   }, []);
 
   return (
+    <PageTransition>
     <main className="mx-auto flex w-full max-w-lg flex-col justify-center px-6">
       <div className="mb-4 mt-4 flex items-center justify-end gap-2">
         {identity ? (
@@ -72,7 +76,12 @@ export default function Home() {
         <p className="mt-2 text-muted-foreground">Pick a game. Play with strangers.</p>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <motion.div
+        className="flex flex-col gap-4"
+        initial="initial"
+        animate="animate"
+        variants={{ animate: { transition: { staggerChildren: 0.08 } } }}
+      >
         {GAMES.map((game) => {
           const slug = game.href?.replace("/play/", "");
           const activePlayers = slug ? playerCounts[slug] : 0;
@@ -82,16 +91,16 @@ export default function Home() {
               title={game.title}
               description={
                 activePlayers > 0 && !game.comingSoon
-                  ? `${game.description} — 🟢 ${activePlayers} playing now`
+                  ? `${game.description} - ${activePlayers} playing now`
                   : game.description
               }
-              emoji={game.emoji}
+              icon={game.icon}
               href={"href" in game ? game.href : undefined}
               comingSoon={"comingSoon" in game ? game.comingSoon : undefined}
             />
           );
         })}
-      </div>
+      </motion.div>
 
       <footer className="mb-8 mt-16 text-center text-xs text-muted-foreground">
         No accounts. No tracking. Just play.
@@ -106,5 +115,6 @@ export default function Home() {
         </a>
       </footer>
     </main>
+    </PageTransition>
   );
 }

@@ -31,6 +31,7 @@ interface RoundEndEvent {
   region: string;
   funFact: string;
   scores: { playerId: string; score: number }[];
+  nextRoundAt: number;
 }
 
 type GameEventHandlers = {
