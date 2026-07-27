@@ -38,7 +38,7 @@ interface RoundState {
 }
 
 const GAME_SLUG = "geoguesser-race";
-const ROUND_DURATION_MS = 60_000;
+const ROUND_DURATION_MS = 20_000;
 const SCOREBOARD_DURATION_MS = 10_000;
 const CYCLE_DURATION_MS = ROUND_DURATION_MS + SCOREBOARD_DURATION_MS;
 let idCounter = 0;
