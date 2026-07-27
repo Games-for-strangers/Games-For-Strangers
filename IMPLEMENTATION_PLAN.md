@@ -17,24 +17,23 @@
 | Web: Header + theme toggle | ✅ Done |
 | Web: TimerBar component | ✅ Done |
 | Web: Theme/shadcn/ui foundation | ✅ Done |
-| `play/where-is-this/page.tsx` | ❌ Missing |
-| Location images in `public/images/locations/` | ❌ Missing (25 referenced, 0 files) |
-| Identity picker UI (avatar grid, settings gear) | ❌ Missing |
-| Guess input + result display components | ❌ Missing |
-| Scoreboard UI (round-end overlay) | ❌ Missing |
-| Daily leaderboard UI | ❌ Missing |
-| Homepage dynamic player count | ❌ Missing |
-| Native game screens | ❌ Missing (boilerplate only) |
-| Rate limiting (Redis/Upstash) | ❌ Missing |
-| API routes (`/api/games`, `/api/scores`) | ❌ Missing |
-| Deploy config (Vercel, Railway) | ❌ Missing |
-| Analytics (Plausible) | ❌ Missing |
+| Web: Game page (`play/where-is-this/page.tsx`) | ✅ Done |
+| Web: StreetViewImage, GuessInput, GuessFeedback, WinnerStrip, RoundEndOverlay | ✅ Done |
+| Web: IdentityDisplay + AvatarPicker | ✅ Done |
+| Web: Loading screen component | ✅ Done |
+| Web: Homepage dynamic player count + avatar picker | ✅ Done |
+| Server: API routes (`/api/games`, `/api/scores`) | ✅ Done |
+| Server: In-memory rate limiting middleware | ✅ Done |
+| Server: Shared game state module | ✅ Done |
+| DB: Seed URLs updated to picsum.photos | ✅ Done |
+| Docker: Web Dockerfile + .dockerignore | ✅ Done |
+| Docker: Server Dockerfile + .dockerignore | ✅ Done |
+| Docker: docker-compose.yml (web + server + postgres) | ✅ Done |
+| Native game screen | ❌ Missing |
 
 ---
 
 ## Tier 1: Core Game Loop (Functional, Playable Locally)
-
-*Can be played start-to-finish on localhost. No user input required.*
 
 ### 1.1 — Game page scaffold
 - Create `apps/web/src/app/play/where-is-this/page.tsx`
@@ -44,18 +43,16 @@
 ### 1.2 — Street View image display
 - Image takes ~70% of viewport height, centered, `object-fit: cover`
 - Loads `imageUrl` from `new-round` socket event
-- Placeholder/skeleton while loading
+- Falls back to gradient with city/country name on error
 
 ### 1.3 — Guess input
 - Single text input: "Where is this?" placeholder
 - Submit on Enter, calls `submitGuess(roundId, guess)`
 - Disabled after guessing or when round ends
-- Case-insensitive comparison (server-side already handles this)
 
-### 1.4 — Source 25 placeholder location images
-- Download or generate 25 placeholder images named to match `locations.json` URLs
-- Place in `apps/web/public/images/locations/`
-- Images can be low-res Unsplash downloads or colored placeholder SVGs with country name (replace later)
+### 1.4 — Location images (SKIPPED — using picsum.photos seeded URLs instead)
+- Seed data URLs updated to `https://picsum.photos/seed/{slug}/800/600`
+- StreetViewImage component falls back to gradient placeholder if image fails to load
 
 ### 1.5 — Player count display
 - Display `🟢 {count} online` from `player-count` socket event
@@ -63,120 +60,105 @@
 
 ### 1.6 — Timer bar integration
 - Wire existing `TimerBar` component to `endTime` from `new-round` event
-- Show countdown below guess input
+- Shows countdown below guess input
 
 ### 1.7 — Round-end result overlay
-- On `round-end` event, show overlay/modal
-- Display: winner animal, answer, city, landmark, fun fact
-- 10-second countdown before next round auto-starts (server already handles this)
+- On `round-end` event, shows overlay with winner, answer, city, landmark, funFact
+- Displays top 5 daily scores from the event data
+- Auto-dismisses when next round starts (10s server cycle)
 
 ---
 
-## Tier 2: Identity & Feedback (Visible Progress)
-
-*Makes the game feel complete. No user input required.*
+## Tier 2: Identity & Feedback
 
 ### 2.1 — Anonymous identity display
 - Show current player's animal + color dot in top bar
-- Persist across sessions (already done in `use-anonymous-identity.ts`)
+- Persist across sessions (localStorage via `use-anonymous-identity`)
 
 ### 2.2 — Identity picker
-- Settings gear icon opens a small popover/drawer
-- 20-animal grid to pick from
-- Color swatches to pick from
+- Settings gear icon opens dropdown popover
+- 20-animal grid + 20 color swatches
 - Saves to localStorage immediately
 
 ### 2.3 — Guess result feedback
-- On `guess-result` event (emitted per-player, blurred for others):
-  - Your own guess: flash green (correct) or red (incorrect)
-  - Others' guesses: show `"{animal} guessed"` without revealing answer
-- Animated toast or inline banner
+- On `guess-result` event: correct → green, incorrect → red, others → blurred "{animal} guessed"
+- Auto-dismisses after 3 seconds
 
 ### 2.4 — Winner announcement strip
-- Bottom strip: recent correct guesses scroll by
-- `"{animal} guessed {country} in {time}s"`
-- Fade in/out animation
+- Bottom-fixed strip: "{animal} guessed {country} in {time}s"
+- Shows most recent winner, auto-dismisses after 5s
 
 ### 2.5 — Mobile responsive game page
-- Image scales for mobile viewport
-- Input and timer stack vertically below image
-- Touch-friendly input sizing
+- Full-height flex layout, image fills available space
+- Input and timer stack below image
+- Uses Tailwind responsive classes throughout
 
 ### 2.6 — Loading/waiting states
-- Skeleton for image loading
-- "Waiting for next round..." state when joining mid-round
-- "Connecting..." overlay before socket connects
+- "Connecting to game..." before socket connects
+- "Waiting for next round..." between rounds
 
 ---
 
-## Tier 3: Richness & Scaling (Feature Complete)
-
-*Leaderboards, homepage stats, native support, rate limiting. No user input required.*
+## Tier 3: Richness & Scaling
 
 ### 3.1 — Daily leaderboard on game page
-- Show top 10 daily scores (from `DailyScore` model, already tracked server-side)
-- Fetched via socket event or simple GET request
-- Display in a sidebar or bottom panel
+- Scores come from `round-end` socket event (server already tracks via DailyScore)
+- Displayed in round-end overlay (top 5)
 
 ### 3.2 — Homepage dynamic player count
-- Fetch global active player count on homepage load
-- Show under each game card, e.g. "🟢 12 playing now"
+- Polls `GET /api/games` every 15 seconds
+- Shows "🟢 {N} playing now" under game cards
 
 ### 3.3 — Avatar picker on homepage
-- First visit: show a quick avatar selection prompt
-- "You are 🦊 — pick your animal" on homepage
+- AvatarPicker component in homepage header
+- Identity displayed with IdentityDisplay component
 
-### 3.4 — Rate limiting (Redis/Upstash)
-- Set up Upstash Redis (free tier)
-- Rate limit guess submissions: 1 guess per round per player (server-side already enforces via in-memory check, but add true rate limiting)
-- 10 requests/second per IP on guess endpoint
+### 3.4 — Rate limiting (in-memory)
+- `createRateLimiter(maxRequests, windowMs)` middleware
+- Token bucket per IP, cleanup interval for stale entries
+- Applied to API routes: 30 req/min per IP
+- No Redis dependency — in-memory works for single-server self-hosting
 
-### 3.5 — API routes (Hono server)
-- `GET /api/games` — list games + active player counts
+### 3.5 — API routes
+- `GET /api/games` — all games with active player counts
 - `GET /api/games/:slug` — single game details
-- `GET /api/scores/daily?game=where-is-this` — leaderboard
+- `GET /api/scores/daily?game={slug}` — top 10 daily scores
 
 ### 3.6 — Native game screen (Expo)
-- Create `apps/native/app/play/where-is-this.tsx`
-- Port the game screen to React Native
-- Use HeroUI Native components + Uniwind styling
-- Socket.IO client for native
+- Not yet implemented — needs port of game components to React Native
 
-### 3.7 — Persistent connection for idle players
-- Socket stays connected on homepage to show real-time counts
-- Reconnect on network loss with exponential backoff
+### 3.7 — Persistent connection
+- Socket.io client handles reconnection internally (built-in)
+- Homepage polls API for player counts (no separate socket needed)
 
 ---
 
 ## Tier 4: Deployment & Content Scale (Needs Your Input)
 
-*Requires you to source images and make deploy decisions.*
-
 ### 4.1 — 200-image location pool
 - Source ~175 more images (Unsplash, Pexels, or AI-generated street scenes)
-- Add entries to `packages/db/src/locations.json` with country, city, landmark, region, funFact
-- Name files to match URLs in `locations.json`
-- Place in `apps/web/public/images/locations/`
+- Add entries to `packages/db/src/locations.json`
+- Replace or supplement picsum.photos seed URLs with real image URLs
 
-### 4.2 — Vercel deployment (Next.js)
-- Connect repo to Vercel
-- Set `NEXT_PUBLIC_SERVER_URL` env var to production Server URL
-- Configure custom domain: `gamesforstrangers.lol`
+### 4.2 — Self-hosted deployment (Docker)
+- `docker-compose up --build` starts web (port 3001) + server (port 3002) + PostgreSQL
+- Web multi-stage Dockerfile with Next.js standalone output
+- Server multi-stage Dockerfile with tsdown build on Bun
+- `.dockerignore` files for both apps
 
-### 4.3 — Railway deployment (Socket.IO server)
-- Deploy Hono server on Railway
-- Set `DATABASE_URL`, `CORS_ORIGIN` env vars
-- Add health check endpoint (already exists at `/api/health`)
+### 4.3 — Production database setup
+- Database persists via named Docker volume (`pgdata`)
+- Run `docker compose exec server bun run prisma db push` after first deploy
+- Run `docker compose exec server bun run prisma db seed`
 
-### 4.4 — Production database
-- Provision Railway Postgres (or Neon free tier)
-- Run `pnpm db:push` against production DB
-- Run `pnpm db:seed`
+### 4.4 — Custom domain & reverse proxy
+- Point `gamesforstrangers.lol` to your VPS
+- Use Caddy or Nginx as reverse proxy in front of Docker
+- Set `CORS_ORIGIN` and `NEXT_PUBLIC_SERVER_URL` accordingly
 
 ### 4.5 — Plausible analytics
-- Sign up for Plausible (plausible.io)
+- Self-host Plausible or use Plausible Cloud
 - Add script tag to root layout
-- Configure custom domain
 
 ### 4.6 — Error tracking (optional)
 - Add Sentry or a simple error boundary
@@ -185,8 +167,6 @@
 ---
 
 ## Tier 5: Launch & Beyond (Your Call)
-
-*Marketing, content decisions, and future planning — you drive these.*
 
 ### 5.1 — Privacy policy page
 - One-sentence policy: "We don't collect anything."
@@ -212,8 +192,8 @@
 - Favicon + social preview image
 
 ### 5.6 — Rate limiting tuning
-- Monitior real traffic patterns
-- Adjust Upstash rate limits based on usage
+- Monitor real traffic patterns
+- Adjust rate limits based on usage
 
 ### 5.7 — Future game planning
 - Design doc for "The Fading Light", "Shared Word Racer", etc.
@@ -221,49 +201,17 @@
 
 ---
 
-## Dependency Map
+## Docker Quick Start
 
-```
-Tier 1 ─────────────────────────────────────────────────
-  1.1 Game page scaffold ─── depends on ─── socket hook, identity hook
-  1.2 Image display ──────── depends on ─── 4 (images in public/)
-  1.3 Guess input ────────── depends on ─── 1.1
-  1.4 Location images ────── depends on ─── nothing (you provide 25 starting images)
-  1.5 Player count ───────── depends on ─── 1.1, socket hook
-  1.6 Timer bar ──────────── depends on ─── 1.1, TimerBar component
-  1.7 Round-end overlay ──── depends on ─── 1.1, socket round-end event
+```sh
+# Build and start all services
+docker compose up --build
 
-Tier 2 ─────────────────────────────────────────────────
-  2.1 Identity display ───── depends on ─── 1.1, identity hook
-  2.2 Identity picker ────── depends on ─── 2.1
-  2.3 Guess feedback ─────── depends on ─── 1.3, socket guess-result event
-  2.4 Winner strip ───────── depends on ─── 1.7, 2.3
-  2.5 Mobile responsive ──── depends on ─── 1.1-1.7
-  2.6 Loading states ─────── depends on ─── 1.1-1.7
+# Push DB schema + seed data (first time only)
+docker compose exec server bunx prisma db push --schema=../packages/db/prisma/schema
+docker compose exec server bunx prisma db seed
 
-Tier 3 ─────────────────────────────────────────────────
-  3.1 Daily leaderboard ──── depends on ─── server-side scoring (done), 3.5
-  3.2 Homepage player count ─ depends on ─── server socket, 3.5
-  3.3 Avatar picker (home) ─ depends on ─── 2.2
-  3.4 Rate limiting ──────── depends on ─── Redis/Upstash setup
-  3.5 API routes ─────────── depends on ─── server entry (done)
-  3.6 Native game screen ─── depends on ─── 1.1-1.7 (port to RN)
-  3.7 Persistent socket ──── depends on ─── socket hook
-
-Tier 4 ─────────────────────────────────────────────────
-  4.1 200-image pool ─────── depends on ─── YOU sourcing images
-  4.2 Vercel deploy ──────── depends on ─── YOU connecting repo
-  4.3 Railway deploy ─────── depends on ─── YOU creating Railway project
-  4.4 Production DB ──────── depends on ─── 4.2, 4.3
-  4.5 Plausible ──────────── depends on ─── YOU signing up
-  4.6 Error tracking ─────── depends on ─── optional
-
-Tier 5 ─────────────────────────────────────────────────
-  5.1 Privacy page ───────── depends on ─── YOUR content approval
-  5.2 Ko-fi ──────────────── depends on ─── YOUR Ko-fi account
-  5.3 Image attribution ──── depends on ─── 4.1, YOUR source tracking
-  5.4 Launch prep ────────── depends on ─── 4.2, 4.3
-  5.5 SEO/social ─────────── depends on ─── YOUR content decisions
-  5.6 Rate tuning ────────── depends on ─── 3.4, live traffic
-  5.7 Future games ───────── depends on ─── YOUR roadmap decisions
+# Access
+# Web: http://localhost:3001
+# Server: http://localhost:3002
 ```
