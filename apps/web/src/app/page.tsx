@@ -1,4 +1,10 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useAnonymousIdentity } from "@gamesforstrangers/ui/hooks/use-anonymous-identity";
+import { AvatarPicker } from "@/components/avatar-picker";
 import { GameCard } from "@/components/game-card";
+import { IdentityDisplay } from "@/components/identity-display";
 
 const GAMES = [
   {
@@ -19,23 +25,75 @@ const GAMES = [
     emoji: "❓",
     comingSoon: true,
   },
-];
+] as const;
 
 export default function Home() {
+  const { identity, setAnimal, setIdentity, allAnimals, allColors } = useAnonymousIdentity();
+  const [playerCounts, setPlayerCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    async function fetchCounts() {
+      try {
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3002";
+        const res = await fetch(`${serverUrl}/api/games`);
+        if (res.ok) {
+          const games: { slug: string; activePlayers: number }[] = await res.json();
+          const counts: Record<string, number> = {};
+          for (const g of games) {
+            counts[g.slug] = g.activePlayers;
+          }
+          setPlayerCounts(counts);
+        }
+      } catch {}
+    }
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 15_000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <main className="mx-auto flex w-full max-w-lg flex-col justify-center px-6">
-      <div className="mb-12 mt-16 text-center">
+      <div className="mb-4 mt-4 flex items-center justify-end gap-2">
+        {identity ? (
+          <AvatarPicker
+            currentAnimal={identity.animal}
+            currentColor={identity.color}
+            allAnimals={allAnimals}
+            allColors={allColors}
+            onSelectAnimal={setAnimal}
+            onSelectColor={(color) => setIdentity({ animal: identity.animal, color })}
+          />
+        ) : null}
+        {identity ? <IdentityDisplay animal={identity.animal} color={identity.color} /> : null}
+      </div>
+
+      <div className="mb-12 mt-8 text-center">
         <h1 className="text-2xl font-bold tracking-tight">Games for Strangers</h1>
         <p className="mt-2 text-muted-foreground">Pick a game. Play with strangers.</p>
       </div>
 
       <div className="flex flex-col gap-4">
-        {GAMES.map((game) => (
-          <GameCard key={game.title} {...game} />
-        ))}
+        {GAMES.map((game) => {
+          const slug = game.href?.replace("/play/", "");
+          const activePlayers = slug ? playerCounts[slug] : 0;
+          return (
+            <GameCard
+              key={game.title}
+              title={game.title}
+              description={
+                activePlayers > 0 && !game.comingSoon
+                  ? `${game.description} — 🟢 ${activePlayers} playing now`
+                  : game.description
+              }
+              emoji={game.emoji}
+              href={"href" in game ? game.href : undefined}
+              comingSoon={"comingSoon" in game ? game.comingSoon : undefined}
+            />
+          );
+        })}
       </div>
 
-      <footer className="mt-16 mb-8 text-center text-xs text-muted-foreground">
+      <footer className="mb-8 mt-16 text-center text-xs text-muted-foreground">
         No accounts. No tracking. Just play.
         <br />
         <a
