@@ -1,6 +1,7 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
 import type { DefaultEventsMap } from "socket.io/dist/typed-events";
 import prisma from "@gamesforstrangers/db";
+import { gameState } from "../state";
 
 interface PlayerInfo {
   animal: string;
@@ -105,6 +106,7 @@ export class RoundManager {
     room.players.set(socket.id, playerInfo);
     socket.join(gameId);
 
+    gameState.joinRoom(gameId, GAME_SLUG);
     this.broadcastPlayerCount(gameId);
 
     if (room.currentRound) {
@@ -112,6 +114,9 @@ export class RoundManager {
         imageUrl: room.currentRound.imageUrl,
         roundId: room.currentRound.roundId,
         endTime: room.currentRound.startedAt.getTime() + ROUND_DURATION_MS,
+        city: room.currentRound.city,
+        country: room.currentRound.answer,
+        landmark: room.currentRound.landmark,
       });
     }
   }
@@ -123,6 +128,8 @@ export class RoundManager {
     room.players.delete(socket.id);
     socket.leave(gameId);
 
+    gameState.leaveRoom(gameId);
+
     if (room.players.size === 0) {
       this.rooms.delete(gameId);
     } else {
@@ -131,10 +138,11 @@ export class RoundManager {
   }
 
   disconnect(socket: Socket) {
-    for (const [, room] of this.rooms) {
+    for (const [gameId, room] of this.rooms) {
       if (room.players.has(socket.id)) {
         room.players.delete(socket.id);
-        this.broadcastPlayerCount(room.id);
+        gameState.leaveRoom(gameId);
+        this.broadcastPlayerCount(gameId);
       }
     }
   }
@@ -318,6 +326,9 @@ export class RoundManager {
       imageUrl: room.currentRound.imageUrl,
       roundId: room.currentRound.roundId,
       endTime: startedAt.getTime() + ROUND_DURATION_MS,
+      city: location.city,
+      country: location.answer,
+      landmark: location.landmark,
     });
 
     // Force end after round duration
