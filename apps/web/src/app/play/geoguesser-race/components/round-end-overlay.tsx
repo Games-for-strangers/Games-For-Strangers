@@ -1,8 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import type { RoundEndEvent } from "@/hooks/use-socket";
+
+const CIRCUMFERENCE = 2 * Math.PI * 40;
 
 interface RoundEndOverlayProps {
   data: RoundEndEvent;
@@ -11,24 +13,30 @@ interface RoundEndOverlayProps {
 
 export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
   const isWinner = data.winner !== null && data.winner.playerId === playerId;
-  const [countdown, setCountdown] = useState<number>(() => {
-    const remaining = data.nextRoundAt - Date.now();
-    return Math.max(0, Math.ceil(remaining / 1000));
+  const endRef = useRef(data.nextRoundAt);
+  endRef.current = data.nextRoundAt;
+
+  const [countdownMs, setCountdownMs] = useState(() => {
+    return Math.max(0, data.nextRoundAt - Date.now());
   });
 
   useEffect(() => {
-    if (countdown <= 0) return;
-    const id = setInterval(() => {
-      const remaining = data.nextRoundAt - Date.now();
+    const tick = () => {
+      const remaining = endRef.current - Date.now();
       if (remaining <= 0) {
-        setCountdown(0);
-        clearInterval(id);
-      } else {
-        setCountdown(Math.ceil(remaining / 1000));
+        setCountdownMs(0);
+        return;
       }
-    }, 200);
+      setCountdownMs(remaining);
+    };
+
+    tick();
+    const id = setInterval(tick, 50);
     return () => clearInterval(id);
-  }, [data.nextRoundAt, countdown]);
+  }, []);
+
+  const progress = Math.max(0, Math.min(1, countdownMs / 10_000));
+  const seconds = Math.max(0, Math.ceil(countdownMs / 1000));
 
   return (
     <motion.div
@@ -90,9 +98,49 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
           </div>
         ) : null}
 
-        <p className="text-xs text-muted-foreground">
-          Next round in <span className="font-mono font-medium">{countdown}s</span>
-        </p>
+        <div className="flex flex-col items-center gap-1">
+          <svg width="64" height="64" viewBox="0 0 100 100" className="-rotate-90">
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="6"
+              className="text-white/10"
+            />
+            <motion.circle
+              cx="50"
+              cy="50"
+              r="40"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="6"
+              strokeLinecap="round"
+              strokeDasharray={CIRCUMFERENCE}
+              initial={false}
+              animate={{ strokeDashoffset: CIRCUMFERENCE * (1 - progress) }}
+              className={
+                progress > 0.3
+                  ? "text-brand-violet"
+                  : progress > 0.1
+                    ? "text-amber-400"
+                    : "text-red-500"
+              }
+            />
+          </svg>
+          <motion.span
+            key={seconds}
+            initial={seconds <= 5 ? { scale: 1.4 } : false}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 12 }}
+            className={`text-xs font-mono font-bold tabular-nums ${
+              seconds <= 5 ? "text-red-500" : "text-text-muted"
+            }`}
+          >
+            {seconds}s
+          </motion.span>
+        </div>
       </div>
     </motion.div>
   );

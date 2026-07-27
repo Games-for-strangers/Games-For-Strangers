@@ -1,6 +1,7 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
 import prisma from "@gamesforstrangers/db";
 import { gameState } from "../state";
+import { LOCATIONS } from "../locations";
 
 interface PlayerInfo {
   animal: string;
@@ -40,6 +41,11 @@ const GAME_SLUG = "geoguesser-race";
 const ROUND_DURATION_MS = 60_000;
 const SCOREBOARD_DURATION_MS = 10_000;
 const CYCLE_DURATION_MS = ROUND_DURATION_MS + SCOREBOARD_DURATION_MS;
+let idCounter = 0;
+
+function makeRoundId(): string {
+  return `round_${++idCounter}_${Date.now()}`;
+}
 
 export class RoundManager {
   private io: SocketIOServer;
@@ -48,43 +54,41 @@ export class RoundManager {
   private usedIndices: Set<number> = new Set();
   private timer: ReturnType<typeof setInterval> | null = null;
   private dbGameId: string | null = null;
+  private dbReady: Promise<string | null>;
 
   constructor(io: SocketIOServer) {
     this.io = io;
+    this.dbReady = this.resolveDbGameId();
+  }
+
+  private async resolveDbGameId(): Promise<string | null> {
+    try {
+      const game = await prisma.game.findUnique({ where: { slug: GAME_SLUG } });
+      if (game) {
+        this.dbGameId = game.id;
+        return game.id;
+      }
+      console.warn(`Game "${GAME_SLUG}" not found in DB — scores won't persist`);
+    } catch (err) {
+      console.warn("DB unavailable — scores won't persist", String(err));
+    }
+    return null;
   }
 
   async init() {
-    await this.loadLocations();
-    this.startCycle();
-  }
-
-  private async loadLocations() {
-    const game = await prisma.game.findUnique({
-      where: { slug: GAME_SLUG },
-    });
-    if (!game) {
-      console.error(`Game "${GAME_SLUG}" not found in DB. Run pnpm db:seed first.`);
-      return;
-    }
-    this.dbGameId = game.id;
-
-    const rounds = await prisma.round.findMany({
-      where: { gameId: game.id },
-    });
-
-    this.locationRounds = rounds.map((r) => ({
-      roundId: r.id,
-      imageUrl: r.imageUrl,
-      answer: r.answer,
-      city: r.city,
-      landmark: r.landmark,
-      region: r.region,
-      funFact: r.funFact,
-      startedAt: r.startedAt,
+    this.locationRounds = LOCATIONS.map((loc) => ({
+      roundId: makeRoundId(),
+      imageUrl: loc.url,
+      answer: loc.country,
+      city: loc.city,
+      landmark: loc.landmark,
+      region: loc.region,
+      funFact: loc.funFact,
+      startedAt: new Date(),
       guesses: [],
     }));
-
-    console.log(`Loaded ${this.locationRounds.length} locations for ${GAME_SLUG}`);
+    console.log(`Loaded ${this.locationRounds.length} locations from hard-coded data`);
+    this.startCycle();
   }
 
   private getRandomLocation(): RoundState {
@@ -102,7 +106,11 @@ export class RoundManager {
     } while (this.usedIndices.has(idx));
 
     this.usedIndices.add(idx);
-    return { ...this.locationRounds[idx], guesses: [] };
+    return {
+      ...this.locationRounds[idx],
+      roundId: makeRoundId(),
+      guesses: [],
+    };
   }
 
   joinGame(socket: Socket, gameId: string, playerInfo: PlayerInfo) {
@@ -229,53 +237,47 @@ export class RoundManager {
 
   private async finishRound(gameId: string) {
     const room = this.rooms.get(gameId);
-    if (!room || !room.currentRound || !this.dbGameId) return;
+    if (!room || !room.currentRound) return;
 
     const round = room.currentRound;
     const winner = round.guesses.find((g) => g.correct);
 
     if (winner) {
-      try {
-        const today = new Date();
-        today.setUTCHours(0, 0, 0, 0);
+      const gameIdResolved = await this.dbReady;
+      if (gameIdResolved) {
+        try {
+          const today = new Date();
+          today.setUTCHours(0, 0, 0, 0);
 
-        await prisma.guess.create({
-          data: {
-            roundId: round.roundId,
-            playerId: winner.playerId,
-            guess: winner.guess,
-            correct: true,
-          },
-        });
-
-        const existing = await prisma.dailyScore.findUnique({
-          where: {
-            playerId_gameId_date: {
-              playerId: winner.playerId,
-              gameId: this.dbGameId,
-              date: today,
-            },
-          },
-        });
-
-        if (existing) {
-          await prisma.dailyScore.update({
-            where: { id: existing.id },
-            data: { score: existing.score + 1, username: winner.username },
-          });
-        } else {
-          await prisma.dailyScore.create({
-            data: {
-              playerId: winner.playerId,
-              username: winner.username,
-              gameId: this.dbGameId,
-              score: 1,
-              date: today,
+          const existing = await prisma.dailyScore.findUnique({
+            where: {
+              playerId_gameId_date: {
+                playerId: winner.playerId,
+                gameId: gameIdResolved,
+                date: today,
+              },
             },
           });
+
+          if (existing) {
+            await prisma.dailyScore.update({
+              where: { id: existing.id },
+              data: { score: existing.score + 1, username: winner.username },
+            });
+          } else {
+            await prisma.dailyScore.create({
+              data: {
+                playerId: winner.playerId,
+                username: winner.username,
+                gameId: gameIdResolved,
+                score: 1,
+                date: today,
+              },
+            });
+          }
+        } catch (err) {
+          console.error("Failed to save score", err);
         }
-      } catch (err) {
-        console.error("Failed to save guess/score", err);
       }
     }
 
@@ -301,14 +303,15 @@ export class RoundManager {
   }
 
   private async getScores() {
-    if (!this.dbGameId) return [];
+    const gameIdResolved = await this.dbReady;
+    if (!gameIdResolved) return [];
     try {
       const today = new Date();
       today.setUTCHours(0, 0, 0, 0);
 
       const topScores = await prisma.dailyScore.findMany({
         where: {
-          gameId: this.dbGameId,
+          gameId: gameIdResolved,
           date: today,
         },
         orderBy: { score: "desc" },
