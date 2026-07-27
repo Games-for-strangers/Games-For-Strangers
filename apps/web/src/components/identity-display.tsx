@@ -1,5 +1,7 @@
 "use client";
 
+import { AnimalIcon } from "./animal-icon";
+
 interface IdentityDisplayProps {
   animal: string;
   color: string;
@@ -7,21 +9,19 @@ interface IdentityDisplayProps {
 }
 
 const sizeMap = {
-  sm: "h-6 w-6 text-xs",
-  md: "h-8 w-8 text-sm",
-  lg: "h-10 w-10 text-base",
+  sm: "h-6 w-6",
+  md: "h-8 w-8",
+  lg: "h-10 w-10",
 };
 
 export function IdentityDisplay({ animal, color, size = "sm" }: IdentityDisplayProps) {
-  const initial = animal.charAt(0).toUpperCase();
-
   return (
     <span
-      className={`inline-flex items-center justify-center rounded-full font-bold text-muted-foreground ${sizeMap[size]}`}
+      className={`inline-flex items-center justify-center rounded-full ${sizeMap[size]}`}
       style={{ backgroundColor: color }}
       title={animal}
     >
-      {initial}
+      <AnimalIcon animal={animal} className="h-3/5 w-3/5 text-muted-foreground" />
     </span>
   );
 }

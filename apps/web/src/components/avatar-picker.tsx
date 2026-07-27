@@ -2,6 +2,7 @@
 
 import { Settings } from "lucide-react";
 import { useState } from "react";
+import { AnimalIcon } from "./animal-icon";
 
 interface AvatarPickerProps {
   currentAnimal: string;
@@ -29,10 +30,10 @@ export function AvatarPicker({
         className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm transition-colors hover:bg-muted"
       >
         <span
-          className="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-muted-foreground"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-full"
           style={{ backgroundColor: currentColor }}
         >
-          {currentAnimal.charAt(0).toUpperCase()}
+          <AnimalIcon animal={currentAnimal} className="h-3/5 w-3/5 text-muted-foreground" />
         </span>
         <Settings className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
@@ -47,15 +48,15 @@ export function AvatarPicker({
                 <button
                   key={a}
                   onClick={() => onSelectAnimal(a)}
-                  className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-muted ${
+                  className={`flex flex-col items-center gap-1 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-muted ${
                     a === currentAnimal ? "bg-muted font-semibold" : ""
                   }`}
                 >
                   <span
-                    className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-muted-foreground"
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-full"
                     style={{ backgroundColor: currentColor }}
                   >
-                    {a.charAt(0).toUpperCase()}
+                    <AnimalIcon animal={a} className="h-3/5 w-3/5 text-muted-foreground" />
                   </span>
                   {a}
                 </button>

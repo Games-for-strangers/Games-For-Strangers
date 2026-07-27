@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useAnonymousIdentity } from "@gamesforstrangers/ui/hooks/use-anonymous-identity";
 import { usePlayerIdentity } from "@gamesforstrangers/ui/hooks/use-player-identity";
 import { AvatarPicker } from "@/components/avatar-picker";
+import { DailyLeaderboard } from "@/components/daily-leaderboard";
 import { GameCard } from "@/components/game-card";
 import { IdentityDisplay } from "@/components/identity-display";
 import { UsernameDialog } from "@/components/username-dialog";
@@ -113,17 +114,10 @@ export default function Home() {
           })}
         </motion.div>
 
+        <DailyLeaderboard />
+
         <footer className="mb-8 mt-16 text-center text-xs text-muted-foreground">
           No accounts. No tracking. Just play.
-          <br />
-          <a
-            href="https://ko-fi.com/gamesforstrangers"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground"
-          >
-            Support on Ko-fi
-          </a>
         </footer>
       </main>
     </PageTransition>

@@ -48,7 +48,6 @@ export class RoundManager {
   private usedIndices: Set<number> = new Set();
   private timer: ReturnType<typeof setInterval> | null = null;
   private dbGameId: string | null = null;
-  private playerUsernames: Map<string, string> = new Map();
 
   constructor(io: SocketIOServer) {
     this.io = io;
@@ -262,12 +261,13 @@ export class RoundManager {
         if (existing) {
           await prisma.dailyScore.update({
             where: { id: existing.id },
-            data: { score: existing.score + 1 },
+            data: { score: existing.score + 1, username: winner.username },
           });
         } else {
           await prisma.dailyScore.create({
             data: {
               playerId: winner.playerId,
+              username: winner.username,
               gameId: this.dbGameId,
               score: 1,
               date: today,
@@ -317,6 +317,7 @@ export class RoundManager {
 
       return topScores.map((s) => ({
         playerId: s.playerId,
+        username: s.username,
         score: s.score,
       }));
     } catch {

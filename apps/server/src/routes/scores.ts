@@ -11,17 +11,26 @@ scores.get("/daily", rateLimit, async (c: Context) => {
   const game = c.req.query("game");
   if (!game) return c.json({ error: "Missing game slug" }, 400);
 
+  const limit = Math.min(Math.max(parseInt(c.req.query("limit") ?? "10", 10) || 10, 1), 25);
+  const offset = Math.max(parseInt(c.req.query("offset") ?? "0", 10) || 0, 0);
+
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
 
-  const topScores = await prisma.dailyScore.findMany({
-    where: { gameId: game, date: today },
-    orderBy: { score: "desc" },
-    take: 10,
-    select: { playerId: true, score: true },
-  });
+  const [topScores, total] = await Promise.all([
+    prisma.dailyScore.findMany({
+      where: { gameId: game, date: today },
+      orderBy: { score: "desc" },
+      skip: offset,
+      take: limit,
+      select: { playerId: true, username: true, score: true },
+    }),
+    prisma.dailyScore.count({
+      where: { gameId: game, date: today },
+    }),
+  ]);
 
-  return c.json(topScores);
+  return c.json({ scores: topScores, total, limit, offset });
 });
 
 export default scores;

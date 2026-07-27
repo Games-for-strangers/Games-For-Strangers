@@ -22,16 +22,18 @@ export default function About() {
           We don&apos;t collect anything. No tracking. No cookies. Just the game.
         </p>
 
-        <div className="pt-4 text-center">
+        <p>
+          Powered by{" "}
           <a
-            href="https://ko-fi.com/gamesforstrangers"
+            href="https://realfavicongenerator.net"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+            className="underline underline-offset-2 hover:text-foreground"
           >
-            Support on Ko-fi
+            RealFaviconGenerator
           </a>
-        </div>
+          .
+        </p>
 
         <div className="pt-2 text-center">
           <Link href="/" className="inline-block text-xs underline underline-offset-2 hover:text-foreground">

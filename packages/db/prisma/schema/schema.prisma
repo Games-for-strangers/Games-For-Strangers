@@ -46,6 +46,7 @@ model Guess {
 model DailyScore {
   id        String   @id @default(cuid())
   playerId  String
+  username  String   @default("???")
   gameId    String
   score     Int      @default(0)
   date      DateTime

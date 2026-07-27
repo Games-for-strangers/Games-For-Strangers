@@ -12,11 +12,25 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: "Games for Strangers — Small games. Play with strangers.",
-  description: "A website where you play tiny games with total strangers — no login, no names, just the weird joy of the internet.",
+  description:
+    "A website where you play tiny games with total strangers — no login, no names, just the weird joy of the internet.",
   metadataBase: new URL("https://gamesforstrangers.lol"),
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    title: "Games For Strangers",
+  },
   openGraph: {
     title: "Games for Strangers",
-    description: "Tiny multiplayer games with total strangers. No login. No names. Just play.",
+    description:
+      "Tiny multiplayer games with total strangers. No login. No names. Just play.",
     url: "https://gamesforstrangers.lol",
     siteName: "Games for Strangers",
     locale: "en_US",
@@ -25,7 +39,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Games for Strangers",
-    description: "Tiny multiplayer games with total strangers. No login. No names. Just play.",
+    description:
+      "Tiny multiplayer games with total strangers. No login. No names. Just play.",
   },
 };
 
