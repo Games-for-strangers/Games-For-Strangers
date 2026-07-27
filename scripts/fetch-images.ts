@@ -146,6 +146,9 @@ async function searchWikipediaImages(query: string, city: string, country: strin
       if (!info) continue;
       if ((info.width && info.width < 800) || (info.height && info.height < 800)) continue;
 
+      // Skip non-scenic images (maps, flags, icons, etc.)
+      if (BAD_WORDS.test(p.title)) continue;
+
       const meta = info.extmetadata ?? {};
       const artist = meta.Artist?.value?.replace(/<[^>]+>/g, "").trim() ?? "";
       const license = meta.LicenseShortName?.value ?? "";
@@ -160,7 +163,7 @@ async function searchWikipediaImages(query: string, city: string, country: strin
     }
 
     if (results.length > 0) {
-      console.log(`    → ${results.length} images from Wikipedia article "${pageTitle}"`);
+      console.log(`    → ${results.length} scenic photos from Wikipedia article "${pageTitle}"`);
       return results;
     }
 
@@ -169,6 +172,8 @@ async function searchWikipediaImages(query: string, city: string, country: strin
 
   return [];
 }
+
+const BAD_WORDS = /\b(flag|icon|map|logo|seal|emblem|coat of arms|locator|diagram|orthographic|montage|collage|selfie|portrait|close.?up|macro|food|texture)\b/i;
 
 async function searchCommonsImages(query: string, limit = 15): Promise<ImageResult[]> {
   const data = await apiFetch(searchUrl(query, limit));
@@ -183,6 +188,9 @@ async function searchCommonsImages(query: string, limit = 15): Promise<ImageResu
 
     // Skip small images (< 800px on either dimension)
     if ((info.width && info.width < 800) || (info.height && info.height < 800)) continue;
+
+    // Skip non-scenic images
+    if (BAD_WORDS.test(p.title)) continue;
 
     const meta = info.extmetadata ?? {};
     const artist = meta.Artist?.value?.replace(/<[^>]+>/g, "").trim() ?? "";
@@ -215,36 +223,48 @@ async function fetchLocationImages(loc: LocationArgs, downloadDir: string): Prom
 
   const queries = [
     loc.query,
-    `${loc.city} ${loc.country} street`,
     `${loc.city} ${loc.country} landmark`,
+    `${loc.city} ${loc.country} street view`,
   ];
 
   let candidates: ImageResult[] = [];
 
-  // Try Commons API
-  for (const q of queries) {
-    console.log(`  Commons search: "${q}"`);
-    await sleep(SLEEP_BETWEEN_SEARCHES);
-    try {
-      const results = await searchCommonsImages(q, 15);
-      console.log(`    → ${results.length} large photos`);
-      if (results.length > 0) {
-        candidates = results;
-        break;
-      }
-    } catch (err) {
-      console.error(`    Commons error:`, err);
+  // Try Wikipedia API first — article-main images are curated and photo-quality
+  console.log(`  Wikipedia search: "${loc.query}"`);
+  await sleep(SLEEP_BETWEEN_SEARCHES);
+  try {
+    candidates = await searchWikipediaImages(loc.query, loc.city, loc.country);
+    if (candidates.length > 0) {
+      console.log(`    → ${candidates.length} curated article images`);
     }
+  } catch (err) {
+    console.error(`    Wikipedia error:`, err);
   }
 
-  // Fallback: search Wikipedia article for the location and get its image
+  // Fallback: Commons API (noisier but more results)
   if (candidates.length === 0) {
-    console.log(`  Trying Wikipedia fallback...`);
-    await sleep(SLEEP_BETWEEN_SEARCHES);
-    try {
-      candidates = await searchWikipediaImages(loc.query, loc.city, loc.country);
-    } catch (err) {
-      console.error(`    Wikipedia fallback error:`, err);
+    for (const q of queries) {
+      console.log(`  Commons fallback: "${q}"`);
+      await sleep(SLEEP_BETWEEN_SEARCHES);
+      try {
+        // Use stricter query terms and more specific search
+        const strictQuery = `${q} -selfie -portrait -closeup -macro -food -texture`;
+        const results = await searchCommonsImages(strictQuery, 20);
+        // Additional filtering: prefer horizontal photos with recognizable landmarks
+        const filtered = results.filter((r) => {
+          const title = r.title.toLowerCase();
+          // Skip if title suggests non-scenic content
+          if (title.match(/\b(portrait|selfie|close.?up|macro|food|texture|icon|logo|map|diagram|flag)\b/)) return false;
+          return true;
+        });
+        console.log(`    → ${filtered.length} photos (${results.length - filtered.length} filtered out)`);
+        if (filtered.length > 0) {
+          candidates = filtered;
+          break;
+        }
+      } catch (err) {
+        console.error(`    Commons error:`, err);
+      }
     }
   }
 
