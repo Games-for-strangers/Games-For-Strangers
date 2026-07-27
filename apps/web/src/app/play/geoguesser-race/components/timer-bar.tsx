@@ -29,7 +29,7 @@ export function TimerBar({ endTime, onExpired }: TimerBarProps) {
         }
         return;
       }
-      const total = 60_000;
+      const total = 20_000;
       setProgress((remaining / total) * 100);
       setRemainingMs(remaining);
     };
@@ -69,7 +69,7 @@ export function TimerBar({ endTime, onExpired }: TimerBarProps) {
           isDanger ? "text-red-500" : "text-text-muted"
         }`}
       >
-        {secondsLeft.toFixed(1)}s
+        {Math.max(0, Math.ceil(secondsLeft))}s
       </motion.div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div

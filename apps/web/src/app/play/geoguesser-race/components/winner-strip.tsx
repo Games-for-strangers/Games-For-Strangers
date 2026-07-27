@@ -30,7 +30,7 @@ export function WinnerStrip({ entries }: WinnerStripProps) {
   }, [entries]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 p-4">
+    <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 p-4">
       <AnimatePresence>
         {visible ? (
           <motion.div
@@ -39,7 +39,7 @@ export function WinnerStrip({ entries }: WinnerStripProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 40, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="mx-auto max-w-md rounded-xl bg-foreground/10 px-4 py-2 text-center text-sm backdrop-blur-sm"
+            className="pointer-events-auto mx-auto max-w-md rounded-xl bg-foreground/10 px-4 py-2 text-center text-sm backdrop-blur-sm"
           >
             <span className="font-medium">{visible.username}</span> guessed{" "}
             <span className="font-medium">{visible.country}</span> in{" "}
