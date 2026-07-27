@@ -4,6 +4,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createSocketServer } from "./socket/handler";
+import gamesRoutes from "./routes/games";
+import scoresRoutes from "./routes/scores";
 
 const app = new Hono();
 
@@ -16,13 +18,12 @@ app.use(
   }),
 );
 
-app.get("/", (c) => {
-  return c.text("OK");
-});
+app.get("/", (c) => c.text("OK"));
 
-app.get("/api/health", (c) => {
-  return c.json({ status: "ok" });
-});
+app.get("/api/health", (c) => c.json({ status: "ok" }));
+
+app.route("/api/games", gamesRoutes);
+app.route("/api/scores", scoresRoutes);
 
 const httpServer = createServer(app.fetch);
 createSocketServer(httpServer);
