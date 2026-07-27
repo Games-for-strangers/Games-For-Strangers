@@ -99,4 +99,4 @@ WORKDIR /app/apps/server
 # `exec` replaces the shell with the bun process so it keeps receiving
 # signals (e.g. SIGTERM) directly for a clean shutdown, instead of going to
 # the shell.
-CMD ["sh", "-c", "cd /app/packages/db && pnpm exec prisma migrate deploy && cd /app/apps/server && exec bun run dist/index.mjs"]
+CMD ["sh", "-c", "cd /app/packages/db && pnpm exec prisma migrate deploy && pnpm db:seed && cd /app/apps/server && exec bun run dist/index.mjs"]

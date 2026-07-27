@@ -11,6 +11,7 @@ import { TurnstileWidget } from "@/components/turnstile-widget";
 import { UsernameDialog } from "@/components/username-dialog";
 import type { RoundEndEvent } from "@/hooks/use-socket";
 import { useSocket } from "@/hooks/use-socket";
+import { useSoundEffect } from "@/hooks/use-sound-effect";
 import type { GuessFeedbackState } from "./components/guess-feedback";
 import { GuessFeedback } from "./components/guess-feedback";
 import { GuessInput } from "./components/guess-input";
@@ -43,6 +44,7 @@ export default function WhereIsThis() {
   const [guessFeedback, setGuessFeedback] = useState<GuessFeedbackState>({ type: "idle" });
   const [roundEndData, setRoundEndData] = useState<RoundEndEvent | null>(null);
   const [winnerEntries, setWinnerEntries] = useState<WinnerEntry[]>([]);
+  const play = useSoundEffect();
 
   const onPlayerCount = useCallback((data: { count: number }) => {
     setPlayerCount(data.count);
@@ -56,20 +58,23 @@ export default function WhereIsThis() {
     setPhase("playing");
     setGuessFeedback({ type: "idle" });
     setRoundEndData(null);
-  }, []);
+    play("round-start");
+  }, [play]);
 
   const onGuessResult = useCallback(
     (data: { animal: string; time: number; correct: boolean; blurred: boolean }) => {
       if (data.correct && data.animal === animalIdentity?.animal) {
         setGuessFeedback({ type: "correct", time: data.time, animal: data.animal });
         setPhase("guessed");
+        play("correct-guess");
       } else if (!data.correct && data.animal === animalIdentity?.animal) {
         setGuessFeedback({ type: "incorrect", animal: data.animal });
+        play("incorrect-guess");
       } else if (data.blurred) {
         setGuessFeedback({ type: "blurred", animal: data.animal, time: data.time });
       }
     },
-    [animalIdentity?.animal],
+    [animalIdentity?.animal, play],
   );
 
   const onRoundEnd = useCallback((data: RoundEndEvent) => {
@@ -77,7 +82,8 @@ export default function WhereIsThis() {
     setPhase("roundEnd");
     setRoundId(null);
     setEndTime(null);
-  }, []);
+    play("time-up");
+  }, [play]);
 
   const [cfToken, setCfToken] = useState<string | null>(null);
 
@@ -144,7 +150,7 @@ export default function WhereIsThis() {
             <span className="text-sm font-semibold text-text-primary">GeoGuesser Race</span>
             <span className="flex items-center gap-1.5 text-xs text-text-muted">
               <span className="h-2 w-2 rounded-full bg-presence-online" />
-              <span>{playerCount} online</span>
+              <span>{playerCount.toLocaleString()} online</span>
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">

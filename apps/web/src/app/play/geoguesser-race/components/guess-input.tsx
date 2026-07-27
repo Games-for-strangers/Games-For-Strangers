@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useRef } from "react";
+import { useSoundEffect } from "@/hooks/use-sound-effect";
 
 interface GuessInputProps {
   onSubmit: (guess: string) => void;
@@ -9,11 +10,13 @@ interface GuessInputProps {
 
 export function GuessInput({ onSubmit, disabled }: GuessInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const play = useSoundEffect();
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const value = inputRef.current?.value.trim();
     if (!value) return;
+    play("ui-click");
     onSubmit(value);
     if (inputRef.current) inputRef.current.value = "";
   }
