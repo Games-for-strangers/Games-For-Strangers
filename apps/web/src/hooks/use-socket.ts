@@ -11,6 +11,9 @@ interface NewRoundEvent {
   imageUrl: string;
   roundId: string;
   endTime: number;
+  city: string;
+  country: string;
+  landmark: string;
 }
 
 interface GuessResultEvent {
@@ -40,6 +43,7 @@ type GameEventHandlers = {
 export function useSocket(gameId: string, playerInfo: { animal: string; color: string } | null, handlers: GameEventHandlers) {
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
+  const [socketId, setSocketId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!playerInfo) return;
@@ -49,6 +53,7 @@ export function useSocket(gameId: string, playerInfo: { animal: string; color: s
 
     socket.on("connect", () => {
       setConnected(true);
+      setSocketId(socket.id ?? null);
       socket.emit("join-game", { gameId, playerInfo });
     });
 
@@ -85,5 +90,5 @@ export function useSocket(gameId: string, playerInfo: { animal: string; color: s
     socketRef.current?.emit("guess-submit", { gameId, roundId, guess });
   }, [gameId]);
 
-  return { connected, submitGuess };
+  return { connected, submitGuess, socketId };
 }
