@@ -47,5 +47,3 @@ const port = parseInt(env.SERVER_PORT || "3002");
 httpServer.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
-
-export default app;
