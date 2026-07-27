@@ -29,11 +29,16 @@ app.route("/api/scores", scoresRoutes);
 // own transport paths (/socket.io/*) via an internal engine.io listener; our
 // Hono handler must NOT touch those or it'll return a 404 before engine.io
 // gets to respond.
+//
+// Bun detects when a createServer callback returns a Response (or a Promise
+// resolving to one) and sends it automatically.  Without the `return`, Bun
+// never sends anything, Coolify's health check times out, and the container
+// gets stuck in a restart loop.
 const httpServer = createServer((req, res) => {
   if (req.url?.startsWith("/socket.io")) return;
-  app.fetch(req, res).catch(() => {
-    res.statusCode = 500;
-    res.end();
+  return app.fetch(req, res).catch((err) => {
+    console.error("Request handler error:", err);
+    return new Response("Internal Server Error", { status: 500 });
   });
 });
 createSocketServer(httpServer);
