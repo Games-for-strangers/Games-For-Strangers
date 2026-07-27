@@ -5,11 +5,14 @@ import { gameState } from "../state";
 interface PlayerInfo {
   animal: string;
   color: string;
+  username: string;
+  uuid: string;
 }
 
 interface GuessEntry {
   playerId: string;
   animal: string;
+  username: string;
   guess: string;
   time: number;
   correct: boolean;
@@ -163,20 +166,21 @@ export class RoundManager {
     const round = room.currentRound;
     if (round.roundId !== roundId) return;
 
-    const alreadyGuessed = round.guesses.some(
-      (g) => g.playerId === socket.id,
-    );
-    if (alreadyGuessed) return;
-
     const playerInfo = room.players.get(socket.id);
     if (!playerInfo) return;
+
+    const alreadyGuessed = round.guesses.some(
+      (g) => g.playerId === playerInfo.uuid,
+    );
+    if (alreadyGuessed) return;
 
     const elapsed = Date.now() - round.startedAt.getTime();
     const isCorrect = guess.trim().toLowerCase() === round.answer.toLowerCase();
 
     const entry: GuessEntry = {
-      playerId: socket.id,
+      playerId: playerInfo.uuid,
       animal: playerInfo.animal,
+      username: playerInfo.username,
       guess,
       time: elapsed,
       correct: isCorrect,
@@ -278,7 +282,12 @@ export class RoundManager {
 
     this.io.to(gameId).emit("round-end", {
       winner: winner
-        ? { animal: winner.animal, time: winner.time, playerId: winner.playerId }
+        ? {
+            animal: winner.animal,
+            username: winner.username,
+            time: winner.time,
+            playerId: winner.playerId,
+          }
         : null,
       answer: round.answer,
       city: round.city,

@@ -47,10 +47,10 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
           >
             <p className="text-4xl">{data.winner.animal}</p>
             <p className="text-lg font-bold">
-              {isWinner ? "You won!" : `${data.winner.animal} got it first!`}
+              {isWinner ? "You got it!" : `${data.winner.username} got it!`}
             </p>
             <p className="text-sm text-muted-foreground">
-              in {((data.winner.time) / 1000).toFixed(1)}s
+              {((data.winner.time) / 1000).toFixed(1)}s
             </p>
           </motion.div>
         ) : (
@@ -71,7 +71,7 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
 
         {data.scores.length > 0 ? (
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Today&apos;s scores</p>
+            <p className="text-xs font-medium text-muted-foreground">Today&apos;s strangers</p>
             <div className="space-y-1">
               {data.scores.slice(0, 5).map((s, i) => (
                 <div
@@ -79,9 +79,11 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
                   className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-1.5 text-sm"
                 >
                   <span>
-                    {i + 1}. {s.playerId === playerId ? "You" : s.playerId.slice(0, 6)}
+                    {i + 1}. {s.playerId === playerId ? "You" : s.username}
                   </span>
-                  <span className="font-medium">{s.score}</span>
+                  <span className="font-medium">
+                    {s.score} {s.score === 1 ? "point" : "points"}
+                  </span>
                 </div>
               ))}
             </div>

@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAnonymousIdentity } from "@gamesforstrangers/ui/hooks/use-anonymous-identity";
+import { usePlayerIdentity } from "@gamesforstrangers/ui/hooks/use-player-identity";
 import { AvatarPicker } from "@/components/avatar-picker";
 import { IdentityDisplay } from "@/components/identity-display";
 import { LoadingScreen } from "@/components/loading-screen";
 import { PageTransition } from "@/components/page-transition";
+import { UsernameDialog } from "@/components/username-dialog";
 import type { RoundEndEvent } from "@/hooks/use-socket";
 import { useSocket } from "@/hooks/use-socket";
 import type { GuessFeedbackState } from "./components/guess-feedback";
@@ -20,13 +22,15 @@ type GamePhase = "connecting" | "waiting" | "playing" | "guessed" | "roundEnd";
 
 interface WinnerEntry {
   animal: string;
+  username: string;
   country: string;
   time: number;
   id: string;
 }
 
 export default function WhereIsThis() {
-  const { identity, setAnimal, setIdentity, allAnimals, allColors } = useAnonymousIdentity();
+  const { identity: animalIdentity, setAnimal, setIdentity, allAnimals, allColors } = useAnonymousIdentity();
+  const { identity: playerIdentity, setUsername, generateAndSetUsername } = usePlayerIdentity();
   const [phase, setPhase] = useState<GamePhase>("connecting");
   const [playerCount, setPlayerCount] = useState(0);
   const [roundId, setRoundId] = useState<string | null>(null);
@@ -54,16 +58,16 @@ export default function WhereIsThis() {
 
   const onGuessResult = useCallback(
     (data: { animal: string; time: number; correct: boolean; blurred: boolean }) => {
-      if (data.correct && data.animal === identity?.animal) {
+      if (data.correct && data.animal === animalIdentity?.animal) {
         setGuessFeedback({ type: "correct", time: data.time, animal: data.animal });
         setPhase("guessed");
-      } else if (!data.correct && data.animal === identity?.animal) {
+      } else if (!data.correct && data.animal === animalIdentity?.animal) {
         setGuessFeedback({ type: "incorrect", animal: data.animal });
       } else if (data.blurred) {
         setGuessFeedback({ type: "blurred", animal: data.animal, time: data.time });
       }
     },
-    [identity?.animal],
+    [animalIdentity?.animal],
   );
 
   const onRoundEnd = useCallback((data: RoundEndEvent) => {
@@ -73,11 +77,18 @@ export default function WhereIsThis() {
     setEndTime(null);
   }, []);
 
-  const socket = useSocket(
-    "where-is-this",
-    identity ? { animal: identity.animal, color: identity.color } : null,
-    { onPlayerCount, onNewRound, onGuessResult, onRoundEnd },
-  );
+  const socket = useSocket({
+    gameId: "where-is-this",
+    playerInfo: animalIdentity && playerIdentity
+      ? {
+          animal: animalIdentity.animal,
+          color: animalIdentity.color,
+          username: playerIdentity.username,
+          uuid: playerIdentity.uuid,
+        }
+      : null,
+    handlers: { onPlayerCount, onNewRound, onGuessResult, onRoundEnd },
+  });
 
   useEffect(() => {
     if (!roundEndData) return;
@@ -86,15 +97,18 @@ export default function WhereIsThis() {
         ...prev.slice(-19),
         {
           animal: roundEndData.winner!.animal,
+          username: roundEndData.winner!.username,
           country: roundEndData.answer,
           time: roundEndData.winner!.time,
           id: Math.random().toString(36).slice(2, 9),
         },
       ]);
     }
-    const myEntry = roundEndData.scores.find((s) => s.playerId === socket.socketId);
-    if (myEntry) setMyScore(myEntry.score);
-  }, [roundEndData, socket.socketId]);
+    if (playerIdentity) {
+      const myEntry = roundEndData.scores.find((s) => s.playerId === playerIdentity.uuid);
+      if (myEntry) setMyScore(myEntry.score);
+    }
+  }, [roundEndData, playerIdentity]);
 
   const handleGuess = useCallback(
     (guess: string) => {
@@ -105,89 +119,97 @@ export default function WhereIsThis() {
     [roundId, socket],
   );
 
-  if (!identity) {
+  if (!animalIdentity || !playerIdentity) {
     return <LoadingScreen message="Setting up your identity..." />;
   }
 
   return (
     <PageTransition>
-    <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
-      <div className="flex items-center justify-between border-b px-4 py-2">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium">Where Is This?</span>
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            {playerCount} online
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">
-            Score: <span className="font-medium text-foreground">{myScore}</span>
-          </span>
-          <AvatarPicker
-            currentAnimal={identity.animal}
-            currentColor={identity.color}
-            allAnimals={allAnimals}
-            allColors={allColors}
-            onSelectAnimal={setAnimal}
-            onSelectColor={(color) => setIdentity({ animal: identity.animal, color })}
-          />
-          <IdentityDisplay animal={identity.animal} color={identity.color} />
-        </div>
-      </div>
-
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {phase === "connecting" || phase === "waiting" ? (
-          <div className="flex flex-1 items-center justify-center">
-            <LoadingScreen
-              message={
-                phase === "connecting"
-                  ? "Connecting to game..."
-                  : "Waiting for next round..."
-              }
-            />
+      <UsernameDialog
+        open={playerIdentity.isFirstVisit || !playerIdentity.username}
+        onConfirm={setUsername}
+        onGenerate={generateAndSetUsername}
+      />
+      <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
+        <div className="flex items-center justify-between border-b px-4 py-2">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium">Where Is This?</span>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              {playerCount} online
+            </span>
           </div>
-        ) : imageUrl && endTime ? (
-          <div className="relative flex flex-1 flex-col">
-            <div className="relative flex-1">
-              <StreetViewImage
-                imageUrl={imageUrl}
-                city={imageMeta?.city ?? ""}
-                country={imageMeta?.country ?? ""}
-                landmark={imageMeta?.landmark ?? ""}
+          <div className="flex items-center gap-3">
+            {playerIdentity.username ? (
+              <span className="text-xs text-text-muted">{playerIdentity.username}</span>
+            ) : null}
+            <span className="text-xs text-muted-foreground">
+              Score: <span className="font-medium text-foreground">{myScore}</span>
+            </span>
+            <AvatarPicker
+              currentAnimal={animalIdentity.animal}
+              currentColor={animalIdentity.color}
+              allAnimals={allAnimals}
+              allColors={allColors}
+              onSelectAnimal={setAnimal}
+              onSelectColor={(color) => setIdentity({ animal: animalIdentity.animal, color })}
+            />
+            <IdentityDisplay animal={animalIdentity.animal} color={animalIdentity.color} />
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {phase === "connecting" || phase === "waiting" ? (
+            <div className="flex flex-1 items-center justify-center">
+              <LoadingScreen
+                message={
+                  phase === "connecting"
+                    ? "Connecting to game..."
+                    : "Waiting for next round..."
+                }
               />
             </div>
-
-            <div className="flex flex-col items-center gap-3 border-t p-4">
-              {endTime ? (
-                <TimerBar
-                  endTime={endTime}
-                  onExpired={() => {
-                    if (phase === "playing" || phase === "guessed") {
-                      setPhase("roundEnd");
-                    }
-                  }}
+          ) : imageUrl && endTime ? (
+            <div className="relative flex flex-1 flex-col">
+              <div className="relative flex-1">
+                <StreetViewImage
+                  imageUrl={imageUrl}
+                  city={imageMeta?.city ?? ""}
+                  country={imageMeta?.country ?? ""}
+                  landmark={imageMeta?.landmark ?? ""}
                 />
-              ) : null}
+              </div>
 
-              <div className="flex items-center gap-3">
-                <GuessInput
-                  onSubmit={handleGuess}
-                  disabled={phase === "guessed" || phase === "roundEnd" || !socket.connected}
-                />
-                <GuessFeedback state={guessFeedback} />
+              <div className="flex flex-col items-center gap-3 border-t p-4">
+                {endTime ? (
+                  <TimerBar
+                    endTime={endTime}
+                    onExpired={() => {
+                      if (phase === "playing" || phase === "guessed") {
+                        setPhase("roundEnd");
+                      }
+                    }}
+                  />
+                ) : null}
+
+                <div className="flex items-center gap-3">
+                  <GuessInput
+                    onSubmit={handleGuess}
+                    disabled={phase === "guessed" || phase === "roundEnd" || !socket.connected}
+                  />
+                  <GuessFeedback state={guessFeedback} />
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
+        </div>
+
+        {roundEndData ? (
+          <RoundEndOverlay data={roundEndData} playerId={playerIdentity.uuid} />
         ) : null}
+
+        <WinnerStrip entries={winnerEntries} />
       </div>
-
-      {roundEndData ? (
-        <RoundEndOverlay data={roundEndData} playerId={socket.socketId} />
-      ) : null}
-
-      <WinnerStrip entries={winnerEntries} />
-    </div>
     </PageTransition>
   );
 }

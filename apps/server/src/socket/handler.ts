@@ -23,7 +23,7 @@ export function createSocketServer(httpServer: HttpServer): SocketIOServer {
 
     socket.on(
       "join-game",
-      ({ gameId, playerInfo }: { gameId: string; playerInfo: { animal: string; color: string } }) => {
+      ({ gameId, playerInfo }: { gameId: string; playerInfo: { animal: string; color: string; username: string; uuid: string } }) => {
         roundManager.joinGame(socket, gameId, playerInfo);
       },
     );

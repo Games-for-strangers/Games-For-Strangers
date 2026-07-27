@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 interface WinnerEntry {
   animal: string;
+  username: string;
   country: string;
   time: number;
   id: string;
@@ -40,7 +41,7 @@ export function WinnerStrip({ entries }: WinnerStripProps) {
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="mx-auto max-w-md rounded-xl bg-foreground/10 px-4 py-2 text-center text-sm backdrop-blur-sm"
           >
-            <span className="font-medium">{visible.animal}</span> guessed{" "}
+            <span className="font-medium">{visible.username}</span> guessed{" "}
             <span className="font-medium">{visible.country}</span> in{" "}
             <span className="font-medium">{((visible.time) / 1000).toFixed(1)}s</span>
           </motion.div>

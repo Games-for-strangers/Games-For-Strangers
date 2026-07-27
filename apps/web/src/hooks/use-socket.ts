@@ -24,13 +24,13 @@ interface GuessResultEvent {
 }
 
 interface RoundEndEvent {
-  winner: { animal: string; time: number; playerId: string } | null;
+  winner: { animal: string; username: string; time: number; playerId: string } | null;
   answer: string;
   city: string;
   landmark: string;
   region: string;
   funFact: string;
-  scores: { playerId: string; score: number }[];
+  scores: { playerId: string; username: string; score: number }[];
   nextRoundAt: number;
 }
 
@@ -41,7 +41,18 @@ type GameEventHandlers = {
   onRoundEnd?: (data: RoundEndEvent) => void;
 };
 
-export function useSocket(gameId: string, playerInfo: { animal: string; color: string } | null, handlers: GameEventHandlers) {
+interface UseSocketOptions {
+  gameId: string;
+  playerInfo: {
+    animal: string;
+    color: string;
+    username: string;
+    uuid: string;
+  } | null;
+  handlers: GameEventHandlers;
+}
+
+export function useSocket({ gameId, playerInfo, handlers }: UseSocketOptions) {
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [socketId, setSocketId] = useState<string | null>(null);
@@ -55,7 +66,15 @@ export function useSocket(gameId: string, playerInfo: { animal: string; color: s
     socket.on("connect", () => {
       setConnected(true);
       setSocketId(socket.id ?? null);
-      socket.emit("join-game", { gameId, playerInfo });
+      socket.emit("join-game", {
+        gameId,
+        playerInfo: {
+          animal: playerInfo.animal,
+          color: playerInfo.color,
+          username: playerInfo.username,
+          uuid: playerInfo.uuid,
+        },
+      });
     });
 
     socket.on("disconnect", () => {
@@ -85,7 +104,7 @@ export function useSocket(gameId: string, playerInfo: { animal: string; color: s
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [gameId, playerInfo?.animal, playerInfo?.color]);
+  }, [gameId, playerInfo?.animal, playerInfo?.color, playerInfo?.username, playerInfo?.uuid]);
 
   const submitGuess = useCallback((roundId: string, guess: string) => {
     socketRef.current?.emit("guess-submit", { gameId, roundId, guess });
