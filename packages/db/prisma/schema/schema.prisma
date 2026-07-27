@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated"
+  moduleFormat = "esm"
+  runtime = "bun"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Game {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  createdAt DateTime @default(now())
+  rounds    Round[]
+  dailyScores DailyScore[]
+}
+
+model Round {
+  id        String   @id @default(cuid())
+  gameId    String
+  imageUrl  String
+  answer    String
+  city      String
+  landmark  String
+  region    String
+  funFact   String
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+  game      Game     @relation(fields: [gameId], references: [id])
+  guesses   Guess[]
+}
+
+model Guess {
+  id        String   @id @default(cuid())
+  roundId   String
+  playerId  String
+  guess     String
+  correct   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  round     Round    @relation(fields: [roundId], references: [id])
+}
+
+model DailyScore {
+  id        String   @id @default(cuid())
+  playerId  String
+  gameId    String
+  score     Int      @default(0)
+  date      DateTime
+  game      Game     @relation(fields: [gameId], references: [id])
+
+  @@unique([playerId, gameId, date])
+}
