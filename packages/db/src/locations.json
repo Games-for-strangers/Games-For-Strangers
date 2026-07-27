@@ -1,0 +1,202 @@
+[
+  {
+    "url": "/images/locations/tokyo-shibuya.jpg",
+    "country": "Japan",
+    "city": "Tokyo",
+    "landmark": "Shibuya Crossing",
+    "region": "Kanto",
+    "funFact": "Shibuya Crossing sees up to 3,000 people crossing at once during peak hours."
+  },
+  {
+    "url": "/images/locations/paris-eiffel.jpg",
+    "country": "France",
+    "city": "Paris",
+    "landmark": "Eiffel Tower",
+    "region": "Île-de-France",
+    "funFact": "The Eiffel Tower was originally built as a temporary exhibit for the 1889 World's Fair."
+  },
+  {
+    "url": "/images/locations/london-bridge.jpg",
+    "country": "United Kingdom",
+    "city": "London",
+    "landmark": "Tower Bridge",
+    "region": "Greater London",
+    "funFact": "Tower Bridge opens about 800 times a year to let ships pass through."
+  },
+  {
+    "url": "/images/locations/rome-colosseum.jpg",
+    "country": "Italy",
+    "city": "Rome",
+    "landmark": "Colosseum",
+    "region": "Lazio",
+    "funFact": "The Colosseum could hold up to 80,000 spectators, making it the largest amphitheater ever built."
+  },
+  {
+    "url": "/images/locations/newyork-timesquare.jpg",
+    "country": "United States",
+    "city": "New York City",
+    "landmark": "Times Square",
+    "region": "New York",
+    "funFact": "Times Square is named after the New York Times, which moved its headquarters there in 1904."
+  },
+  {
+    "url": "/images/locations/sydney-opera.jpg",
+    "country": "Australia",
+    "city": "Sydney",
+    "landmark": "Sydney Opera House",
+    "region": "New South Wales",
+    "funFact": "The Sydney Opera House has over 1 million roof tiles arranged in a chevron pattern."
+  },
+  {
+    "url": "/images/locations/dubai-burj.jpg",
+    "country": "United Arab Emirates",
+    "city": "Dubai",
+    "landmark": "Burj Khalifa",
+    "region": "Dubai",
+    "funFact": "The Burj Khalifa is so tall that its residents can break their fast up to 3 minutes later than those at ground level."
+  },
+  {
+    "url": "/images/locations/beijing-forbidden.jpg",
+    "country": "China",
+    "city": "Beijing",
+    "landmark": "Forbidden City",
+    "region": "Beijing",
+    "funFact": "The Forbidden City has 9,999 rooms — just one short of the mythical 10,000 rooms of heaven."
+  },
+  {
+    "url": "/images/locations/rio-christ.jpg",
+    "country": "Brazil",
+    "city": "Rio de Janeiro",
+    "landmark": "Christ the Redeemer",
+    "region": "Rio de Janeiro",
+    "funFact": "Christ the Redeemer stands 30 meters tall and was struck by lightning during a storm in 2014."
+  },
+  {
+    "url": "/images/locations/cairo-pyramids.jpg",
+    "country": "Egypt",
+    "city": "Cairo",
+    "landmark": "Great Pyramids of Giza",
+    "region": "Giza",
+    "funFact": "The Great Pyramid was the tallest man-made structure in the world for over 3,800 years."
+  },
+  {
+    "url": "/images/locations/amsterdam-canal.jpg",
+    "country": "Netherlands",
+    "city": "Amsterdam",
+    "landmark": "Canal Ring (Grachtengordel)",
+    "region": "North Holland",
+    "funFact": "Amsterdam has over 100 kilometers of canals and about 1,500 bridges."
+  },
+  {
+    "url": "/images/locations/santorini-blue.jpg",
+    "country": "Greece",
+    "city": "Santorini",
+    "landmark": "Oia Village",
+    "region": "South Aegean",
+    "funFact": "Santorini's iconic blue-domed churches were painted that color to keep the buildings cool."
+  },
+  {
+    "url": "/images/locations/machupicchu.jpg",
+    "country": "Peru",
+    "city": "Cusco",
+    "landmark": "Machu Picchu",
+    "region": "Cusco Region",
+    "funFact": "Machu Picchu was never discovered by Spanish colonizers — it was unknown to the outside world until 1911."
+  },
+  {
+    "url": "/images/locations/venice-grand.jpg",
+    "country": "Italy",
+    "city": "Venice",
+    "landmark": "Grand Canal",
+    "region": "Veneto",
+    "funFact": "Venice is built on 118 small islands connected by over 400 bridges."
+  },
+  {
+    "url": "/images/locations/sanfrancisco-golden.jpg",
+    "country": "United States",
+    "city": "San Francisco",
+    "landmark": "Golden Gate Bridge",
+    "region": "California",
+    "funFact": "The Golden Gate Bridge's signature color 'International Orange' was originally a primer coat."
+  },
+  {
+    "url": "/images/locations/moscow-stbasil.jpg",
+    "country": "Russia",
+    "city": "Moscow",
+    "landmark": "Saint Basil's Cathedral",
+    "region": "Central Russia",
+    "funFact": "Legend says Ivan the Terrible had the architect blinded so he could never build anything more beautiful."
+  },
+  {
+    "url": "/images/locations/mumbai-gateway.jpg",
+    "country": "India",
+    "city": "Mumbai",
+    "landmark": "Gateway of India",
+    "region": "Maharashtra",
+    "funFact": "The Gateway of India was built to commemorate the visit of King George V in 1911."
+  },
+  {
+    "url": "/images/locations/barcelona-sagrada.jpg",
+    "country": "Spain",
+    "city": "Barcelona",
+    "landmark": "Sagrada Familia",
+    "region": "Catalonia",
+    "funFact": "The Sagrada Familia has been under construction since 1882 and is still not finished."
+  },
+  {
+    "url": "/images/locations/seoul-gyeongbok.jpg",
+    "country": "South Korea",
+    "city": "Seoul",
+    "landmark": "Gyeongbokgung Palace",
+    "region": "Seoul Capital Area",
+    "funFact": "Gyeongbokgung was built in 1395 and was the main royal palace of the Joseon dynasty."
+  },
+  {
+    "url": "/images/locations/istanbul-hagia.jpg",
+    "country": "Turkey",
+    "city": "Istanbul",
+    "landmark": "Hagia Sophia",
+    "region": "Marmara",
+    "funFact": "Hagia Sophia served as a church for 916 years, a mosque for 481 years, and now a museum."
+  },
+  {
+    "url": "/images/locations/bangkok-wat.jpg",
+    "country": "Thailand",
+    "city": "Bangkok",
+    "landmark": "Wat Arun (Temple of Dawn)",
+    "region": "Central Thailand",
+    "funFact": "Wat Arun is named after Aruna, the Hindu god of the dawn, and sparkles with over 100,000 porcelain tiles."
+  },
+  {
+    "url": "/images/locations/berlin-wall.jpg",
+    "country": "Germany",
+    "city": "Berlin",
+    "landmark": "East Side Gallery (Berlin Wall)",
+    "region": "Berlin",
+    "funFact": "The Berlin Wall fell in 1989, and the East Side Gallery is the longest open-air gallery in the world."
+  },
+  {
+    "url": "/images/locations/hongkong-harbour.jpg",
+    "country": "Hong Kong",
+    "city": "Hong Kong",
+    "landmark": "Victoria Harbour",
+    "region": "Hong Kong",
+    "funFact": "Hong Kong has the world's longest urban area cable car system — the Ngong Ping 360."
+  },
+  {
+    "url": "/images/locations/toronto-cn.jpg",
+    "country": "Canada",
+    "city": "Toronto",
+    "landmark": "CN Tower",
+    "region": "Ontario",
+    "funFact": "The CN Tower was the world's tallest freestanding structure until 2007."
+  },
+  {
+    "url": "/images/locations/cape-town-table.jpg",
+    "country": "South Africa",
+    "city": "Cape Town",
+    "landmark": "Table Mountain",
+    "region": "Western Cape",
+    "funFact": "Table Mountain is over 260 million years old — older than the Himalayas and the Andes."
+  }
+]
