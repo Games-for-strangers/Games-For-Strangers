@@ -11,7 +11,7 @@ const app = new Hono();
 
 app.use(logger());
 app.use(
-  "/*",
+  "/api/*",
   cors({
     origin: env.CORS_ORIGIN,
     allowMethods: ["GET", "POST", "OPTIONS"],
