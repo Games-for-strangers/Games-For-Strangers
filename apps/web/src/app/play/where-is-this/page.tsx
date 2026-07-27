@@ -131,20 +131,20 @@ export default function WhereIsThis() {
         onGenerate={generateAndSetUsername}
       />
       <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
-        <div className="flex items-center justify-between border-b px-4 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-default px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium">Where Is This?</span>
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              {playerCount} online
+            <span className="text-sm font-semibold text-text-primary">Where Is This?</span>
+            <span className="flex items-center gap-1.5 text-xs text-text-muted">
+              <span className="h-2 w-2 rounded-full bg-presence-online" />
+              <span>{playerCount} online</span>
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {playerIdentity.username ? (
-              <span className="text-xs text-text-muted">{playerIdentity.username}</span>
+              <span className="hidden text-xs text-text-muted sm:inline">{playerIdentity.username}</span>
             ) : null}
-            <span className="text-xs text-muted-foreground">
-              Score: <span className="font-medium text-foreground">{myScore}</span>
+            <span className="text-xs text-text-muted">
+              Score: <span className="font-semibold text-text-primary">{myScore}</span>
             </span>
             <AvatarPicker
               currentAnimal={animalIdentity.animal}

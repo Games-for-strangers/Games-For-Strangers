@@ -64,10 +64,10 @@ export default function Home() {
         onConfirm={setUsername}
         onGenerate={generateAndSetUsername}
       />
-      <main className="mx-auto flex w-full max-w-lg flex-col justify-center px-6">
-        <div className="mb-4 mt-4 flex items-center justify-end gap-3">
+      <main className="mx-auto flex w-full max-w-lg flex-col justify-center px-5 sm:px-6">
+        <div className="mb-4 mt-4 flex items-center justify-end gap-2 sm:gap-3">
           {playerIdentity?.username ? (
-            <span className="text-sm text-text-muted">{playerIdentity.username}</span>
+            <span className="text-xs text-text-muted sm:text-sm">{playerIdentity.username}</span>
           ) : null}
           {animalIdentity ? (
             <AvatarPicker
