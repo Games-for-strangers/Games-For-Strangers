@@ -1,0 +1,34 @@
+{
+  "name": "gamesforstrangers",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check-types": "turbo run check-types",
+    "dev:native": "turbo run dev -F native",
+    "dev:web": "turbo run dev -F web",
+    "dev:server": "turbo run dev -F server",
+    "db:push": "turbo run db:push -F @gamesforstrangers/db",
+    "db:studio": "turbo run db:studio -F @gamesforstrangers/db",
+    "db:generate": "turbo run db:generate -F @gamesforstrangers/db",
+    "db:migrate": "turbo run db:migrate -F @gamesforstrangers/db",
+    "db:seed": "turbo run db:seed -F @gamesforstrangers/db"
+  },
+  "dependencies": {
+    "@gamesforstrangers/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@gamesforstrangers/config": "workspace:*",
+    "@types/bun": "catalog:",
+    "turbo": "^2.10.2",
+    "typescript": "^6"
+  },
+  "packageManager": "pnpm@11.4.0"
+}
