@@ -14,8 +14,11 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, extname } from "node:path";
 
-const API = "https://commons.wikimedia.org/w/api.php";
-const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+const UA = "GamesForStrangers/1.0 (image-curation-script; https://github.com/kinzi/gamesforstrangers)";
+
+// Try Commons API first, fallback to Wikipedia API if blocked.
+const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
+const WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php";
 
 const SLEEP_BETWEEN_DOWNLOADS = 6_000;
 const SLEEP_BETWEEN_SEARCHES = 1_500;
@@ -53,11 +56,18 @@ function slug(s: string): string {
 
 async function apiFetch(url: string): Promise<any> {
   const res = await fetch(url, {
-    headers: { "User-Agent": UA, "Accept": "application/json" },
+    headers: {
+      "User-Agent": UA,
+      "Api-User-Agent": UA,
+      "Accept": "application/json, */*;q=0.5",
+    },
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`API HTTP ${res.status}: ${text.slice(0, 300)}`);
+    // Log full first KB for debugging
+    console.error(`    API returned ${res.status}. Response preview:`);
+    console.error(text.slice(0, 800));
+    throw new Error(`API HTTP ${res.status}`);
   }
   return await res.json();
 }
@@ -87,15 +97,77 @@ async function downloadWithRetry(downloadUrl: string, retries = 8): Promise<Arra
 }
 
 function searchUrl(query: string, limit = 15): string {
-  return `${API}?action=query` +
+  return `${COMMONS_API}?action=query` +
     `&generator=search` +
     `&gsrsearch=${encodeURIComponent(query)}` +
     `&gsrnamespace=6` +
     `&gsrlimit=${limit}` +
     `&prop=imageinfo` +
     `&iiprop=url|extmetadata|size` +
-    `&format=json` +
-    `&origin=*`;
+    `&format=json`;
+}
+
+// Search Wikipedia article for the location, extract images from the page.
+// Uses en.wikipedia.org which is less likely to block VPS IPs than commons.wikimedia.org.
+async function searchWikipediaImages(query: string, city: string, country: string): Promise<ImageResult[]> {
+  // Search for the article
+  const searchUrl = `${WIKIPEDIA_API}?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=3`;
+  const searchRes = await apiFetch(searchUrl);
+  const pages = searchRes.query?.search ?? [];
+
+  for (const page of pages) {
+    const pageTitle = page.title;
+    // Get images from the article
+    const imgUrl = `${WIKIPEDIA_API}?action=query&prop=images&titles=${encodeURIComponent(pageTitle)}&format=json&imlimit=20`;
+    const imgRes = await apiFetch(imgUrl);
+    const imgPages = Object.values(imgRes.query?.pages ?? {}) as any[];
+    const fileTitles: string[] = [];
+    for (const p of imgPages) {
+      if (p.images) {
+        for (const img of p.images) {
+          const title = img.title;
+          // Only photos, skip SVGs, audios, videos, etc.
+          if (!title.match(/\.(jpg|jpeg|png|webp)$/i)) continue;
+          fileTitles.push(title);
+        }
+      }
+    }
+
+    if (fileTitles.length === 0) continue;
+
+    // Get image info (URL, metadata) for each file
+    const infoUrl = `${WIKIPEDIA_API}?action=query&prop=imageinfo&iiprop=url|extmetadata|size&titles=${encodeURIComponent(fileTitles.join("|"))}&format=json`;
+    const infoRes = await apiFetch(infoUrl);
+    const infoPages = Object.values(infoRes.query?.pages ?? {}) as any[];
+    const results: ImageResult[] = [];
+
+    for (const p of infoPages) {
+      const info = p.imageinfo?.[0];
+      if (!info) continue;
+      if ((info.width && info.width < 800) || (info.height && info.height < 800)) continue;
+
+      const meta = info.extmetadata ?? {};
+      const artist = meta.Artist?.value?.replace(/<[^>]+>/g, "").trim() ?? "";
+      const license = meta.LicenseShortName?.value ?? "";
+
+      results.push({
+        title: p.title,
+        url: info.url,
+        descriptionurl: info.descriptionurl,
+        artist,
+        license,
+      });
+    }
+
+    if (results.length > 0) {
+      console.log(`    → ${results.length} images from Wikipedia article "${pageTitle}"`);
+      return results;
+    }
+
+    await sleep(500);
+  }
+
+  return [];
 }
 
 async function searchCommonsImages(query: string, limit = 15): Promise<ImageResult[]> {
@@ -149,8 +221,9 @@ async function fetchLocationImages(loc: LocationArgs, downloadDir: string): Prom
 
   let candidates: ImageResult[] = [];
 
+  // Try Commons API
   for (const q of queries) {
-    console.log(`  Search: "${q}"`);
+    console.log(`  Commons search: "${q}"`);
     await sleep(SLEEP_BETWEEN_SEARCHES);
     try {
       const results = await searchCommonsImages(q, 15);
@@ -160,7 +233,18 @@ async function fetchLocationImages(loc: LocationArgs, downloadDir: string): Prom
         break;
       }
     } catch (err) {
-      console.error(`    API error:`, err);
+      console.error(`    Commons error:`, err);
+    }
+  }
+
+  // Fallback: search Wikipedia article for the location and get its image
+  if (candidates.length === 0) {
+    console.log(`  Trying Wikipedia fallback...`);
+    await sleep(SLEEP_BETWEEN_SEARCHES);
+    try {
+      candidates = await searchWikipediaImages(loc.query, loc.city, loc.country);
+    } catch (err) {
+      console.error(`    Wikipedia fallback error:`, err);
     }
   }
 
