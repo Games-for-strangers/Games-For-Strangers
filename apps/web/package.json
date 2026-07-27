@@ -20,6 +20,7 @@
     "next-themes": "catalog:",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-turnstile": "^1.1.5",
     "socket.io-client": "^4.8.3",
     "sonner": "catalog:",
     "zod": "catalog:"

@@ -50,9 +50,10 @@ interface UseSocketOptions {
     uuid: string;
   } | null;
   handlers: GameEventHandlers;
+  cfToken?: string | null;
 }
 
-export function useSocket({ gameId, playerInfo, handlers }: UseSocketOptions) {
+export function useSocket({ gameId, playerInfo, handlers, cfToken }: UseSocketOptions) {
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [socketId, setSocketId] = useState<string | null>(null);
@@ -74,6 +75,7 @@ export function useSocket({ gameId, playerInfo, handlers }: UseSocketOptions) {
           username: playerInfo.username,
           uuid: playerInfo.uuid,
         },
+        cfToken: cfToken ?? undefined,
       });
     });
 
@@ -107,8 +109,8 @@ export function useSocket({ gameId, playerInfo, handlers }: UseSocketOptions) {
   }, [gameId, playerInfo?.animal, playerInfo?.color, playerInfo?.username, playerInfo?.uuid]);
 
   const submitGuess = useCallback((roundId: string, guess: string) => {
-    socketRef.current?.emit("guess-submit", { gameId, roundId, guess });
-  }, [gameId]);
+    socketRef.current?.emit("guess-submit", { gameId, roundId, guess, cfToken: cfToken ?? undefined });
+  }, [gameId, cfToken]);
 
   return { connected, submitGuess, socketId };
 }

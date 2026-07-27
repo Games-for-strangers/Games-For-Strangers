@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import type http from "node:http";
 import { env } from "@gamesforstrangers/env/server";
 import { RoundManager } from "./round-manager";
+import { verifyTurnstileToken } from "../turnstile";
 
 const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   "join-game": { max: 10, windowMs: 60_000 },
@@ -65,13 +66,21 @@ export function createSocketServer(httpServer: http.Server) {
   roundManager.init();
 
   io.on("connection", (socket: Socket) => {
-    socket.on("join-game", (data: { gameId: string; playerInfo: { animal: string; color: string; username: string; uuid: string } }) => {
+    socket.on("join-game", async (data: { gameId: string; playerInfo: { animal: string; color: string; username: string; uuid: string }; cfToken?: string }) => {
       if (!socketRateLimit("join-game", socket)) return;
+      if (data.cfToken && !(await verifyTurnstileToken(data.cfToken))) {
+        socket.emit("turnstile-error", { event: "join-game" });
+        return;
+      }
       roundManager.joinGame(socket, data.gameId, data.playerInfo);
     });
 
-    socket.on("guess-submit", (data: { gameId: string; roundId: string; guess: string }) => {
+    socket.on("guess-submit", async (data: { gameId: string; roundId: string; guess: string; cfToken?: string }) => {
       if (!socketRateLimit("guess-submit", socket)) return;
+      if (data.cfToken && !(await verifyTurnstileToken(data.cfToken))) {
+        socket.emit("turnstile-error", { event: "guess-submit" });
+        return;
+      }
       roundManager.submitGuess(socket, data.gameId, data.roundId, data.guess);
     });
 

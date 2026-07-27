@@ -8,6 +8,7 @@ export const env = createEnv({
     CORS_ORIGIN: z.url(),
     SERVER_PORT: z.string().default("3002"),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    TURNSTILE_SECRET_KEY: z.string().optional(),
   },
   runtimeEnv: process.env,
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,

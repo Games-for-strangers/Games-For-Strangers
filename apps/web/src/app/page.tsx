@@ -10,6 +10,7 @@ import { AvatarPicker } from "@/components/avatar-picker";
 import { DailyLeaderboard } from "@/components/daily-leaderboard";
 import { GameCard } from "@/components/game-card";
 import { IdentityDisplay } from "@/components/identity-display";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { UsernameDialog } from "@/components/username-dialog";
 
 const GAMES = [
@@ -119,6 +120,10 @@ export default function Home() {
         <footer className="mb-8 mt-16 text-center text-xs text-muted-foreground">
           No accounts. No tracking. Just play.
         </footer>
+
+        <div className="fixed bottom-2 right-2 z-30">
+          <TurnstileWidget onToken={() => {}} />
+        </div>
       </main>
     </PageTransition>
   );

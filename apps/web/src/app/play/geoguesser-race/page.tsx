@@ -7,6 +7,7 @@ import { AvatarPicker } from "@/components/avatar-picker";
 import { IdentityDisplay } from "@/components/identity-display";
 import { LoadingScreen } from "@/components/loading-screen";
 import { PageTransition } from "@/components/page-transition";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { UsernameDialog } from "@/components/username-dialog";
 import type { RoundEndEvent } from "@/hooks/use-socket";
 import { useSocket } from "@/hooks/use-socket";
@@ -77,6 +78,8 @@ export default function WhereIsThis() {
     setEndTime(null);
   }, []);
 
+  const [cfToken, setCfToken] = useState<string | null>(null);
+
   const socket = useSocket({
     gameId: "geoguesser-race",
     playerInfo: animalIdentity && playerIdentity
@@ -88,6 +91,7 @@ export default function WhereIsThis() {
         }
       : null,
     handlers: { onPlayerCount, onNewRound, onGuessResult, onRoundEnd },
+    cfToken,
   });
 
   useEffect(() => {
@@ -209,6 +213,10 @@ export default function WhereIsThis() {
         ) : null}
 
         <WinnerStrip entries={winnerEntries} />
+
+        <div className="fixed bottom-2 right-2 z-30">
+          <TurnstileWidget onToken={setCfToken} />
+        </div>
       </div>
     </PageTransition>
   );

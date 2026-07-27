@@ -2,12 +2,17 @@ import type { Context } from "hono";
 import { Hono } from "hono";
 import prisma from "@gamesforstrangers/db";
 import { createRateLimiter } from "../rate-limit";
+import { verifyTurnstileToken } from "../turnstile";
 
 const rateLimit = createRateLimiter(30, 60_000);
 
 const scores = new Hono();
 
 scores.get("/daily", rateLimit, async (c: Context) => {
+  const cfToken = c.req.header("x-turnstile-token");
+  if (cfToken && !(await verifyTurnstileToken(cfToken))) {
+    return c.json({ error: "Turnstile verification failed" }, 403);
+  }
   const game = c.req.query("game");
   if (!game) return c.json({ error: "Missing game slug" }, 400);
 
