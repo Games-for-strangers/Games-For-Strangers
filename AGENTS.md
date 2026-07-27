@@ -35,7 +35,7 @@ pnpm check-types  # tsc -b across all packages
 
 ## Game loop
 
-Single game "Where Is This?" — 60s rounds guessing country from Street View image. Players join via Socket.IO `join-game`, submit `guess-submit`. Server cycles rounds globally per connected room. Scores tracked via Prisma `DailyScore`.
+Single game "GeoGuesser Race" — 60s rounds guessing country from Street View image. Players join via Socket.IO `join-game`, submit `guess-submit`. Server cycles rounds globally per connected room. Scores tracked via Prisma `DailyScore`.
 
 ## TypeScript
 

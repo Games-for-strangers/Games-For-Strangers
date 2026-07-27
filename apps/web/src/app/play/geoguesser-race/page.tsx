@@ -78,7 +78,7 @@ export default function WhereIsThis() {
   }, []);
 
   const socket = useSocket({
-    gameId: "where-is-this",
+    gameId: "geoguesser-race",
     playerInfo: animalIdentity && playerIdentity
       ? {
           animal: animalIdentity.animal,
@@ -133,7 +133,7 @@ export default function WhereIsThis() {
       <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-default px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-text-primary">Where Is This?</span>
+            <span className="text-sm font-semibold text-text-primary">GeoGuesser Race</span>
             <span className="flex items-center gap-1.5 text-xs text-text-muted">
               <span className="h-2 w-2 rounded-full bg-presence-online" />
               <span>{playerCount} online</span>

@@ -4,19 +4,34 @@ import locations from "./locations.json" with { type: "json" };
 const prisma = createPrismaClient();
 
 async function seed() {
+  const oldSlug = "where-is-this";
+  const newSlug = "geoguesser-race";
+
+  const oldGame = await prisma.game.findUnique({ where: { slug: oldSlug } });
+  if (oldGame) {
+    await prisma.game.update({
+      where: { slug: oldSlug },
+      data: { slug: newSlug, title: "GeoGuesser Race" },
+    });
+    console.log(`Renamed game: ${oldSlug} -> ${newSlug}`);
+  }
+
   const game = await prisma.game.upsert({
-    where: { slug: "where-is-this" },
+    where: { slug: newSlug },
     update: {},
     create: {
-      slug: "where-is-this",
-      title: "Where Is This?",
+      slug: newSlug,
+      title: "GeoGuesser Race",
     },
   });
 
   console.log(`Seeded game: ${game.title} (${game.id})`);
 
   const existingRounds = await prisma.round.count({ where: { gameId: game.id } });
-  if (existingRounds === 0) {
+  if (existingRounds === 0 || locations.length !== existingRounds) {
+    if (existingRounds > 0) {
+      await prisma.round.deleteMany({ where: { gameId: game.id } });
+    }
     for (const loc of locations) {
       await prisma.round.create({
         data: {

@@ -36,7 +36,7 @@ interface RoundState {
   guesses: GuessEntry[];
 }
 
-const GAME_SLUG = "where-is-this";
+const GAME_SLUG = "geoguesser-race";
 const ROUND_DURATION_MS = 60_000;
 const SCOREBOARD_DURATION_MS = 10_000;
 const CYCLE_DURATION_MS = ROUND_DURATION_MS + SCOREBOARD_DURATION_MS;
@@ -48,6 +48,7 @@ export class RoundManager {
   private usedIndices: Set<number> = new Set();
   private timer: ReturnType<typeof setInterval> | null = null;
   private dbGameId: string | null = null;
+  private playerUsernames: Map<string, string> = new Map();
 
   constructor(io: SocketIOServer) {
     this.io = io;

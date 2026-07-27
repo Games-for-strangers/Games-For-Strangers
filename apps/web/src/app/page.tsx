@@ -13,10 +13,10 @@ import { UsernameDialog } from "@/components/username-dialog";
 
 const GAMES = [
   {
-    title: "Where Is This?",
+    title: "GeoGuesser Race",
     description: "Race strangers to guess the country from a Street View image.",
     icon: Globe,
-    href: "/play/where-is-this",
+    href: "/play/geoguesser-race",
   },
   {
     title: "Coming Soon",
