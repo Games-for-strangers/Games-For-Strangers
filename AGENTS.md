@@ -35,7 +35,9 @@ pnpm check-types  # tsc -b across all packages
 
 ## Game loop
 
-Single game "GeoGuesser Race" — 20s rounds guessing country from Street View image, followed by a 10s scoreboard, cycling continuously. Players join via Socket.IO `join-game`, submit `guess-submit`. First correct guess ends the round early. Server cycles rounds globally per connected room. Scores tracked via Prisma `DailyScore` (keyed by player, game, UTC date).
+Two games: **GeoGuesser Race** (guess country from Street View image; first correct guess wins, round ends early) and **Higher or Lower** (does country A have a higher/lower population or area than B; all correct guesses score). Both run 20s rounds + 10s scoreboards, cycling continuously. Players join via Socket.IO `join-game` (gameId = game slug), submit `guess-submit`. Unknown slugs get a `game-error` event.
+
+Server architecture: `apps/server/src/socket/game-engine.ts` defines `BaseGameEngine` (rooms, timers, scoring, `DailyScore` persistence). Per-game engines live in `apps/server/src/socket/engines/` and provide round content + answer checking. `RoundManager` (`socket/round-manager.ts`) dispatches socket events to the engine matching the slug. Scores tracked via Prisma `DailyScore` (keyed by player, game, UTC date).
 
 ## TypeScript
 
