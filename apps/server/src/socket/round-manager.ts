@@ -1,6 +1,7 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
 import type { BaseGameEngine, BaseRound, PlayerInfo } from "./game-engine";
 import { GeoGuesserEngine } from "./engines/geoguesser-engine";
+import { HigherLowerEngine } from "./engines/higher-lower-engine";
 
 /**
  * Routes socket events to the right game engine based on the client-supplied
@@ -13,6 +14,7 @@ export class RoundManager {
   constructor(io: SocketIOServer) {
     const engines: BaseGameEngine<BaseRound>[] = [
       new GeoGuesserEngine(io),
+      new HigherLowerEngine(io),
     ];
     for (const engine of engines) {
       this.engines.set(engine.slug, engine);
