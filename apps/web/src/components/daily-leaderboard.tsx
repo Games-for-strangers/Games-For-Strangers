@@ -20,55 +20,59 @@ interface LeaderboardResponse {
 }
 
 const PAGE_SIZE = 25;
+const COMPACT_PAGE_SIZE = 8;
 
 interface DailyLeaderboardProps {
   /** Game slug to fetch scores for */
   game: string;
   /** Shown above the leaderboard so multiple games can be told apart */
   gameTitle?: string;
+  /** Compact mode for sidebar/rail: smaller rows, fewer items */
+  compact?: boolean;
 }
 
-export function DailyLeaderboard({ game, gameTitle }: DailyLeaderboardProps) {
+export function DailyLeaderboard({ game, gameTitle, compact }: DailyLeaderboardProps) {
   const { identity: playerIdentity } = usePlayerIdentity();
   const { identity: animalIdentity } = useAnonymousIdentity();
   const [scores, setScores] = useState<ScoreEntry[]>([]);
   const [total, setTotal] = useState(0);
-  const [offset, setOffset] = useState(PAGE_SIZE);
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
   const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3002";
+  const pageSize = compact ? COMPACT_PAGE_SIZE : PAGE_SIZE;
 
   const fetchInitial = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `${serverUrl}/api/scores/daily?game=${game}&limit=${PAGE_SIZE}&offset=0`,
+        `${serverUrl}/api/scores/daily?game=${game}&limit=${pageSize}&offset=0`,
       );
       if (res.ok) {
         const data: LeaderboardResponse = await res.json();
         setScores(data.scores);
         setTotal(data.total);
-        setOffset(PAGE_SIZE);
+        setOffset(pageSize);
       }
     } catch {}
     setLoading(false);
-  }, [serverUrl, game]);
+  }, [serverUrl, game, pageSize]);
 
   const fetchMore = useCallback(async () => {
     setLoadingMore(true);
     try {
       const res = await fetch(
-        `${serverUrl}/api/scores/daily?game=${game}&limit=${PAGE_SIZE}&offset=${offset}`,
+        `${serverUrl}/api/scores/daily?game=${game}&limit=${pageSize}&offset=${offset}`,
       );
       if (res.ok) {
         const data: LeaderboardResponse = await res.json();
         setScores((prev) => [...prev, ...data.scores]);
-        setOffset((prev) => prev + PAGE_SIZE);
+        setOffset((prev) => prev + pageSize);
       }
     } catch {}
     setLoadingMore(false);
-  }, [serverUrl, game, offset]);
+  }, [serverUrl, game, pageSize, offset]);
 
   useEffect(() => {
     fetchInitial();
@@ -83,11 +87,9 @@ export function DailyLeaderboard({ game, gameTitle }: DailyLeaderboardProps) {
 
   return (
     <section className="mt-16">
-      <div className="mb-6 text-center">
-        <h2 className="text-lg font-bold tracking-tight text-text-primary">Today&apos;s Leaderboard</h2>
-        <p className="mt-1 text-xs text-text-muted">
-          {gameTitle ? `${gameTitle} — top strangers of the day` : "Top strangers of the day"}
-        </p>
+      <div className="mb-6 text-left">
+        <p className="type-eyebrow">Leaderboard</p>
+        <h2 className="mt-1 text-base font-bold text-text-primary">{gameTitle ?? "Today&apos;s Scores"}</h2>
       </div>
 
       {loading ? (
@@ -116,7 +118,7 @@ export function DailyLeaderboard({ game, gameTitle }: DailyLeaderboardProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2, delay: i * 0.015 }}
-                  className={`flex items-center gap-3 border-b border-border-default px-4 py-2.5 text-sm last:border-0 ${
+                  className={`flex items-center gap-3 border-b border-border-default px-4 ${compact ? "py-2" : "py-2.5"} text-sm last:border-0 ${
                     isMe ? "bg-brand-violet/[0.06]" : ""
                   }`}
                 >
