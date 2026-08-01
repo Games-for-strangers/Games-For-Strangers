@@ -11,8 +11,11 @@ async function getDailyScores(c: Context) {
   if (cfToken && !(await verifyTurnstileToken(cfToken))) {
     return c.json({ error: "Turnstile verification failed" }, 403);
   }
-  const game = c.req.query("game");
-  if (!game) return c.json({ error: "Missing game slug" }, 400);
+  const slug = c.req.query("game");
+  if (!slug) return c.json({ error: "Missing game slug" }, 400);
+
+  const game = await prisma.game.findUnique({ where: { slug } });
+  if (!game) return c.json({ error: "Unknown game slug" }, 404);
 
   const limit = Math.min(Math.max(parseInt(c.req.query("limit") ?? "10", 10) || 10, 1), 25);
   const offset = Math.max(parseInt(c.req.query("offset") ?? "0", 10) || 0, 0);
@@ -22,14 +25,14 @@ async function getDailyScores(c: Context) {
 
   const [topScores, total] = await Promise.all([
     prisma.dailyScore.findMany({
-      where: { gameId: game, date: today },
+      where: { gameId: game.id, date: today },
       orderBy: { score: "desc" },
       skip: offset,
       take: limit,
       select: { playerId: true, username: true, score: true },
     }),
     prisma.dailyScore.count({
-      where: { gameId: game, date: today },
+      where: { gameId: game.id, date: today },
     }),
   ]);
 
