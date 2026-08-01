@@ -48,14 +48,14 @@ export interface RoundEndEvent {
   nextRoundAt: number;
 }
 
-type GameEventHandlers = {
+type GameEventHandlers<TNewRound = NewRoundEvent, TRoundEnd = RoundEndEvent> = {
   onPlayerCount?: (data: PlayerCountEvent) => void;
-  onNewRound?: (data: NewRoundEvent) => void;
+  onNewRound?: (data: TNewRound) => void;
   onGuessResult?: (data: GuessResultEvent) => void;
-  onRoundEnd?: (data: RoundEndEvent) => void;
+  onRoundEnd?: (data: TRoundEnd) => void;
 };
 
-interface UseSocketOptions {
+interface UseSocketOptions<TNewRound = NewRoundEvent, TRoundEnd = RoundEndEvent> {
   gameId: string;
   playerInfo: {
     animal: string;
@@ -63,11 +63,11 @@ interface UseSocketOptions {
     username: string;
     uuid: string;
   } | null;
-  handlers: GameEventHandlers;
+  handlers: GameEventHandlers<TNewRound, TRoundEnd>;
   cfToken?: string | null;
 }
 
-export function useSocket({ gameId, playerInfo, handlers, cfToken }: UseSocketOptions) {
+export function useSocket<TNewRound = NewRoundEvent, TRoundEnd = RoundEndEvent>({ gameId, playerInfo, handlers, cfToken }: UseSocketOptions<TNewRound, TRoundEnd>) {
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [socketId, setSocketId] = useState<string | null>(null);
@@ -101,7 +101,7 @@ export function useSocket({ gameId, playerInfo, handlers, cfToken }: UseSocketOp
       handlers.onPlayerCount?.(data);
     });
 
-    socket.on("new-round", (data: NewRoundEvent) => {
+    socket.on("new-round", (data: TNewRound) => {
       handlers.onNewRound?.(data);
     });
 
@@ -109,7 +109,7 @@ export function useSocket({ gameId, playerInfo, handlers, cfToken }: UseSocketOp
       handlers.onGuessResult?.(data);
     });
 
-    socket.on("round-end", (data: RoundEndEvent) => {
+    socket.on("round-end", (data: TRoundEnd) => {
       handlers.onRoundEnd?.(data);
     });
 

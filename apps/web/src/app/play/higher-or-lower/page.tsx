@@ -7,83 +7,68 @@ import { AvatarPicker } from "@/components/avatar-picker";
 import { IdentityDisplay } from "@/components/identity-display";
 import { LoadingScreen } from "@/components/loading-screen";
 import { PageTransition } from "@/components/page-transition";
+import { TimerBar } from "@/components/timer-bar";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 import { UsernameDialog } from "@/components/username-dialog";
-import type { RoundEndEvent } from "@/hooks/use-socket";
 import { useSocket } from "@/hooks/use-socket";
 import { useSoundEffect } from "@/hooks/use-sound-effect";
-import { useHintTokens } from "@/hooks/use-hint-tokens";
-import type { GuessFeedbackState } from "./components/guess-feedback";
-import { GuessFeedback } from "./components/guess-feedback";
-import { GuessInput } from "./components/guess-input";
-import { HintSystem } from "./components/hint-system";
+import { HigherLowerButtons } from "./components/higher-lower-buttons";
 import { RoundEndOverlay } from "./components/round-end-overlay";
-import { StreetViewImage } from "./components/street-view-image";
-import { TimerBar } from "@/components/timer-bar";
-import { WinnerStrip } from "./components/winner-strip";
+import { StatPrompt } from "./components/stat-prompt";
+import type {
+  HigherLowerChoice,
+  HigherLowerNewRoundEvent,
+  HigherLowerRoundEndEvent,
+  PublicCountry,
+} from "./types";
 
 type GamePhase = "connecting" | "waiting" | "playing" | "guessed" | "roundEnd";
 
-interface WinnerEntry {
-  animal: string;
-  username: string;
-  country: string;
-  time: number;
-  id: string;
-}
-
-export default function WhereIsThis() {
+export default function HigherOrLower() {
   const { identity: animalIdentity, setAnimal, setIdentity, allAnimals, allColors } = useAnonymousIdentity();
   const { identity: playerIdentity, setUsername, generateAndSetUsername } = usePlayerIdentity();
   const [usernameDone, setUsernameDone] = useState(false);
   const [phase, setPhase] = useState<GamePhase>("connecting");
   const [playerCount, setPlayerCount] = useState(0);
   const [roundId, setRoundId] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [imageMeta, setImageMeta] = useState<{ city: string; country: string; landmark: string } | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
+  const [prompt, setPrompt] = useState<{
+    stat: HigherLowerNewRoundEvent["stat"];
+    countryA: PublicCountry;
+    countryB: PublicCountry;
+  } | null>(null);
+  const [myGuess, setMyGuess] = useState<HigherLowerChoice | null>(null);
   const [myScore, setMyScore] = useState(0);
-  const [guessFeedback, setGuessFeedback] = useState<GuessFeedbackState>({ type: "idle" });
-  const [roundEndData, setRoundEndData] = useState<RoundEndEvent | null>(null);
-  const [winnerEntries, setWinnerEntries] = useState<WinnerEntry[]>([]);
-  const [hints, setHints] = useState<string[]>([]);
-  const { tokens, earnForRound, spendToken } = useHintTokens();
+  const [roundEndData, setRoundEndData] = useState<HigherLowerRoundEndEvent | null>(null);
   const play = useSoundEffect();
 
   const onPlayerCount = useCallback((data: { count: number }) => {
     setPlayerCount(data.count);
   }, []);
 
-  const onNewRound = useCallback((data: { imageUrl: string; roundId: string; endTime: number; city: string; country: string; landmark: string; hints: string[] }) => {
-    setImageUrl(data.imageUrl);
-    setImageMeta({ city: data.city, country: data.country, landmark: data.landmark });
+  const onNewRound = useCallback((data: HigherLowerNewRoundEvent) => {
+    setPrompt({ stat: data.stat, countryA: data.countryA, countryB: data.countryB });
     setRoundId(data.roundId);
     setEndTime(data.endTime);
     setPhase("playing");
-    setGuessFeedback({ type: "idle" });
+    setMyGuess(null);
     setRoundEndData(null);
-    setHints(data.hints ?? []);
-    earnForRound();
     play("round-start");
-  }, [play, earnForRound]);
+  }, [play]);
 
   const onGuessResult = useCallback(
     (data: { animal: string; time: number; correct: boolean; blurred: boolean }) => {
-      if (data.correct && data.animal === animalIdentity?.animal) {
-        setGuessFeedback({ type: "correct", time: data.time, animal: data.animal });
-        setPhase("guessed");
+      if (data.animal !== animalIdentity?.animal) return;
+      if (data.correct) {
         play("correct-guess");
-      } else if (!data.correct && data.animal === animalIdentity?.animal) {
-        setGuessFeedback({ type: "incorrect", animal: data.animal });
+      } else {
         play("incorrect-guess");
-      } else if (data.blurred) {
-        setGuessFeedback({ type: "blurred", animal: data.animal, time: data.time });
       }
     },
     [animalIdentity?.animal, play],
   );
 
-  const onRoundEnd = useCallback((data: RoundEndEvent) => {
+  const onRoundEnd = useCallback((data: HigherLowerRoundEndEvent) => {
     setRoundEndData(data);
     setPhase("roundEnd");
     setRoundId(null);
@@ -93,8 +78,8 @@ export default function WhereIsThis() {
 
   const [cfToken, setCfToken] = useState<string | null>(null);
 
-  const socket = useSocket({
-    gameId: "geoguesser-race",
+  const socket = useSocket<HigherLowerNewRoundEvent, HigherLowerRoundEndEvent>({
+    gameId: "higher-or-lower",
     playerInfo: animalIdentity && playerIdentity
       ? {
           animal: animalIdentity.animal,
@@ -108,32 +93,25 @@ export default function WhereIsThis() {
   });
 
   useEffect(() => {
-    if (!roundEndData) return;
-    if (roundEndData.winner) {
-      setWinnerEntries((prev) => [
-        ...prev.slice(-19),
-        {
-          animal: roundEndData.winner!.animal,
-          username: roundEndData.winner!.username,
-          country: roundEndData.answer,
-          time: roundEndData.winner!.time,
-          id: Math.random().toString(36).slice(2, 9),
-        },
-      ]);
+    if (socket.connected) {
+      setPhase((prev) => (prev === "connecting" ? "waiting" : prev));
     }
-    if (playerIdentity) {
-      const myEntry = roundEndData.scores.find((s) => s.playerId === playerIdentity.uuid);
-      if (myEntry) setMyScore(myEntry.score);
-    }
+  }, [socket.connected]);
+
+  useEffect(() => {
+    if (!roundEndData || !playerIdentity) return;
+    const myEntry = roundEndData.scores.find((s) => s.playerId === playerIdentity.uuid);
+    if (myEntry) setMyScore(myEntry.score);
   }, [roundEndData, playerIdentity]);
 
-  const handleGuess = useCallback(
-    (guess: string) => {
-      if (!roundId) return;
-      setGuessFeedback({ type: "pending" });
-      socket.submitGuess(roundId, guess);
+  const handleChoose = useCallback(
+    (choice: HigherLowerChoice) => {
+      if (!roundId || phase !== "playing") return;
+      setMyGuess(choice);
+      setPhase("guessed");
+      socket.submitGuess(roundId, choice);
     },
-    [roundId, socket],
+    [roundId, phase, socket],
   );
 
   if (!animalIdentity || !playerIdentity) {
@@ -153,7 +131,7 @@ export default function WhereIsThis() {
       <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-default px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-text-primary">GeoGuesser Race</span>
+            <span className="text-sm font-semibold text-text-primary">Higher or Lower</span>
             <span className="flex items-center gap-1.5 text-xs text-text-muted">
               <span className="h-2 w-2 rounded-full bg-presence-online" />
               <span>{playerCount.toLocaleString()} online</span>
@@ -189,52 +167,38 @@ export default function WhereIsThis() {
                 }
               />
             </div>
-          ) : imageUrl && endTime ? (
+          ) : prompt && endTime ? (
             <div className="relative flex flex-1 flex-col">
-              <div className="relative flex-1">
-                <StreetViewImage
-                  imageUrl={imageUrl}
-                  city={imageMeta?.city ?? ""}
-                  country={imageMeta?.country ?? ""}
-                  landmark={imageMeta?.landmark ?? ""}
-                />
-              </div>
+              <StatPrompt
+                stat={prompt.stat}
+                countryA={prompt.countryA}
+                countryB={prompt.countryB}
+              />
 
               <div className="flex flex-col items-center gap-3 border-t p-4">
-                {endTime ? (
-                  <TimerBar
-                    endTime={endTime}
-                    onExpired={() => {
-                      if (phase === "playing" || phase === "guessed") {
-                        setPhase("roundEnd");
-                      }
-                    }}
-                  />
-                ) : null}
+                <TimerBar
+                  endTime={endTime}
+                  onExpired={() => {
+                    if (phase === "playing" || phase === "guessed") {
+                      setPhase("roundEnd");
+                    }
+                  }}
+                />
 
-                <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:items-start">
-                    <div className="flex w-full flex-col gap-2 sm:max-w-md">
-                      <GuessInput
-                        onSubmit={handleGuess}
-                        disabled={phase === "guessed" || phase === "roundEnd" || !socket.connected}
-                      />
-                    </div>
-                  <GuessFeedback state={guessFeedback} />
-                </div>
+                <HigherLowerButtons
+                  onChoose={handleChoose}
+                  disabled={phase !== "playing" || !socket.connected}
+                  chosen={myGuess}
+                />
 
-                {hints.length > 0 ? (
-                  <div className="mt-2 w-full sm:max-w-md">
-                    <div className="flex items-center gap-2 text-[11px] text-text-muted">
-                      <span>🔍</span>
-                      <span>Stuck? Use a hint</span>
-                      <span className="ml-auto rounded bg-brand-violet/10 px-1.5 py-0.5 font-mono">
-                        {tokens} tokens
-                      </span>
-                    </div>
-                    <div className="mt-1.5">
-                      <HintSystem hints={hints} tokens={tokens} onSpendToken={spendToken} />
-                    </div>
-                  </div>
+                {phase === "guessed" ? (
+                  <p className="text-xs text-text-muted">
+                    You picked{" "}
+                    <span className={`font-semibold ${myGuess === "higher" ? "text-emerald-400" : "text-red-400"}`}>
+                      {myGuess?.toUpperCase()}
+                    </span>{" "}
+                    — waiting for the round to end...
+                  </p>
                 ) : null}
               </div>
             </div>
@@ -242,10 +206,12 @@ export default function WhereIsThis() {
         </div>
 
         {roundEndData ? (
-          <RoundEndOverlay data={roundEndData} playerId={playerIdentity.uuid} />
+          <RoundEndOverlay
+            data={roundEndData}
+            playerId={playerIdentity.uuid}
+            myGuess={myGuess}
+          />
         ) : null}
-
-        <WinnerStrip entries={winnerEntries} />
 
         <div className="fixed bottom-2 right-2 z-30">
           <TurnstileWidget onToken={setCfToken} />
