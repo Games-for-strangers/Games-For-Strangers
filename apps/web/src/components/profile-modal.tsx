@@ -105,7 +105,7 @@ export function ProfileModal({ open, onClose, currentUsername, onSave, onGenerat
             <button
               type="button"
               onClick={handleGenerate}
-              className="flex items-center justify-center gap-1.5 rounded-md border border-border-default px-4 py-2.5 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
+              className="flex items-center justify-center gap-1.5 rounded-full border border-border-default px-4 py-2.5 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
             >
               <Sparkles className="size-4" />
               Random

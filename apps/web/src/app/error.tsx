@@ -39,13 +39,13 @@ export default function Error({
       <div className="mt-8 flex items-center gap-3">
         <button
           onClick={reset}
-          className="inline-flex h-12 items-center gap-2 rounded-md bg-gradient-to-r from-brand-violet to-brand-blue px-6 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="inline-flex h-12 items-center gap-2 rounded-full bg-gradient-to-r from-brand-violet to-brand-blue px-6 text-sm font-semibold text-white transition-opacity hover:opacity-90"
         >
           Try again{countdown > 0 ? ` (${countdown}s)` : ""}
         </button>
         <Link
           href="/"
-          className="inline-flex h-12 items-center rounded-md border border-border-default px-6 text-sm font-semibold text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
+          className="inline-flex h-12 items-center rounded-full border border-border-default px-6 text-sm font-semibold text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
         >
           Back to games
         </Link>

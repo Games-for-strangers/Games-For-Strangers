@@ -160,7 +160,7 @@ export default function WhereIsThis() {
               <span className={`text-sm font-semibold ${accent.text}`}>GeoGuesser Race</span>
               <span className="flex items-center gap-1.5 text-xs text-text-muted">
                 <span className="h-2 w-2 rounded-full bg-presence-online" />
-                <span>{playerCount.toLocaleString()} online</span>
+                <span className="font-mono tabular-nums">{playerCount.toLocaleString()}</span> online
               </span>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">

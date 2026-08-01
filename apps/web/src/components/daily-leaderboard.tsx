@@ -153,7 +153,7 @@ export function DailyLeaderboard({ game, gameTitle, compact }: DailyLeaderboardP
               <button
                 onClick={fetchMore}
                 disabled={loadingMore}
-                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border-default bg-surface-base px-4 text-xs font-medium text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border-default bg-surface-base px-4 text-xs font-medium text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {loadingMore ? (
                   <>
