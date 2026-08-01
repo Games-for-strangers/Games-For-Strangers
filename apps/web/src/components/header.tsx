@@ -6,10 +6,15 @@ import { Menu, X } from "lucide-react";
 import { usePlayerIdentity } from "@gamesforstrangers/ui/hooks/use-player-identity";
 import { useAnonymousIdentity } from "@gamesforstrangers/ui/hooks/use-anonymous-identity";
 import { IdentityDisplay } from "@/components/identity-display";
+import { Logo } from "@/components/logo";
 import { ProfileModal } from "@/components/profile-modal";
 import { UsernameDialog } from "@/components/username-dialog";
 
-export default function Header() {
+interface HeaderProps {
+  className?: string;
+}
+
+export default function Header({ className }: HeaderProps) {
   const { identity: playerIdentity, setUsername, generateAndSetUsername } = usePlayerIdentity();
   const { identity: animalIdentity } = useAnonymousIdentity();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -43,7 +48,9 @@ export default function Header() {
   );
 
   return (
-    <header className="relative flex h-[72px] items-center justify-between border-b border-border-default px-5 md:px-8 lg:px-12">
+    <header
+      className={`relative flex h-[72px] items-center justify-between border-b border-border-default px-5 md:px-8 lg:px-12${className ? ` ${className}` : ""}`}
+    >
       <UsernameDialog
         open={playerIdentity?.isFirstVisit || (playerIdentity !== null && !playerIdentity.username)}
         onConfirm={setUsername}
@@ -57,12 +64,7 @@ export default function Header() {
         onGenerate={generateAndSetUsername}
       />
 
-      <Link href="/" className="text-lg font-bold tracking-tight">
-        Games for{" "}
-        <span className="bg-gradient-to-r from-brand-violet to-brand-blue bg-clip-text text-transparent">
-          Strangers
-        </span>
-      </Link>
+      <Logo />
 
       <nav className="hidden items-center gap-4 md:flex">{nav}</nav>
 

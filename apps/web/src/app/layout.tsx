@@ -3,7 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 
 import "../index.css";
-import Header from "@/components/header";
+import { AppShell } from "@/components/app-shell";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -67,10 +67,7 @@ export default function RootLayout({
         `}
       </Script>
       <body className="antialiased">
-        <div className="grid min-h-svh grid-rows-[auto_1fr]">
-          <Header />
-          {children}
-        </div>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

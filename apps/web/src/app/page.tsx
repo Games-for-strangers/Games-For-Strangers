@@ -3,7 +3,8 @@
 import { ArrowUpDown, Globe, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/page-transition";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { usePlayerCounts } from "@/hooks/use-player-counts";
 import { useAnonymousIdentity } from "@gamesforstrangers/ui/hooks/use-anonymous-identity";
 import { usePlayerIdentity } from "@gamesforstrangers/ui/hooks/use-player-identity";
 import { AvatarPicker } from "@/components/avatar-picker";
@@ -40,28 +41,8 @@ const GAMES = [
 export default function Home() {
   const { identity: animalIdentity, setAnimal, setIdentity, allAnimals, allColors } = useAnonymousIdentity();
   const { identity: playerIdentity, setUsername, generateAndSetUsername } = usePlayerIdentity();
-  const [playerCounts, setPlayerCounts] = useState<Record<string, number>>({});
+  const playerCounts = usePlayerCounts();
   const [usernameDone, setUsernameDone] = useState(false);
-
-  useEffect(() => {
-    async function fetchCounts() {
-      try {
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3002";
-        const res = await fetch(`${serverUrl}/api/games`);
-        if (res.ok) {
-          const games: { slug: string; activePlayers: number }[] = await res.json();
-          const counts: Record<string, number> = {};
-          for (const g of games) {
-            counts[g.slug] = g.activePlayers;
-          }
-          setPlayerCounts(counts);
-        }
-      } catch {}
-    }
-    fetchCounts();
-    const interval = setInterval(fetchCounts, 15_000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <PageTransition>
@@ -74,7 +55,7 @@ export default function Home() {
         onGenerate={generateAndSetUsername}
       />
       <main className="mx-auto flex w-full max-w-lg flex-col justify-center px-5 sm:px-6">
-        <div className="mb-4 mt-4 flex items-center justify-end gap-2 sm:gap-3">
+        <div className="mb-4 mt-4 flex items-center justify-end gap-2 sm:gap-3 xl:hidden">
           {playerIdentity?.username ? (
             <span className="text-xs text-text-muted sm:text-sm">{playerIdentity.username}</span>
           ) : null}
