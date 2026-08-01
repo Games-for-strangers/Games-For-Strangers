@@ -27,9 +27,21 @@ async function seed() {
 
   console.log(`Seeded game: ${game.title} (${game.id})`);
 
+  const higherOrLower = await prisma.game.upsert({
+    where: { slug: "higher-or-lower" },
+    update: {},
+    create: {
+      slug: "higher-or-lower",
+      title: "Higher or Lower",
+    },
+  });
+
+  console.log(`Seeded game: ${higherOrLower.title} (${higherOrLower.id})`);
+
   const existingRounds = await prisma.round.count({ where: { gameId: game.id } });
   if (existingRounds === 0 || locations.length !== existingRounds) {
     if (existingRounds > 0) {
+      await prisma.guess.deleteMany({ where: { round: { gameId: game.id } } });
       await prisma.round.deleteMany({ where: { gameId: game.id } });
     }
     for (const loc of locations) {
