@@ -52,7 +52,7 @@ function ChoiceButton({ choice, label, icon, onChoose, disabled, chosen }: Choic
       whileTap={disabled ? undefined : { scale: 0.97 }}
       onClick={() => onChoose(choice)}
       disabled={disabled}
-      className={`flex flex-1 items-center justify-center gap-2 rounded-radius-2xl border px-6 py-4 text-base font-bold transition-colors disabled:cursor-not-allowed ${
+      className={`flex flex-1 items-center justify-center gap-2 rounded-2xl border px-6 py-4 text-base font-bold transition-colors disabled:cursor-not-allowed ${
         isChosen
           ? isHigher
             ? "border-emerald-500 bg-emerald-500/15 text-emerald-400"

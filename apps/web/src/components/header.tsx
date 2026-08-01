@@ -30,7 +30,7 @@ export default function Header() {
             setProfileOpen(true);
             setMobileMenuOpen(false);
           }}
-          className="flex items-center gap-2 rounded-radius-lg px-3 py-1.5 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
+          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
         >
           {animalIdentity ? (
             <IdentityDisplay animal={animalIdentity.animal} color={animalIdentity.color} size="sm" />
@@ -68,7 +68,7 @@ export default function Header() {
 
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="flex items-center justify-center rounded-radius-md p-2 text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary md:hidden"
+        className="flex items-center justify-center rounded-md p-2 text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary md:hidden"
         aria-label="Toggle menu"
       >
         {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -80,10 +80,10 @@ export default function Header() {
             className="fixed inset-0 top-[72px] z-40 bg-bg-canvas/60 backdrop-blur-sm md:hidden"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <nav className="absolute right-0 top-full z-50 flex w-48 flex-col gap-1 rounded-radius-xl border border-border-default bg-surface-elevated p-3 shadow-lg md:hidden">
+          <nav className="absolute right-0 top-full z-50 flex w-48 flex-col gap-1 rounded-xl border border-border-default bg-surface-elevated p-3 shadow-lg md:hidden">
             <Link
               href="/about"
-              className="rounded-radius-lg px-3 py-2 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
+              className="rounded-lg px-3 py-2 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
               onClick={() => setMobileMenuOpen(false)}
             >
               About
@@ -94,7 +94,7 @@ export default function Header() {
                   setProfileOpen(true);
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center gap-2 rounded-radius-lg px-3 py-2 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
               >
                 {animalIdentity ? (
                   <IdentityDisplay animal={animalIdentity.animal} color={animalIdentity.color} size="sm" />

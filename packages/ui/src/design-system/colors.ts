@@ -22,6 +22,12 @@ export const colors = {
     pink: "#EC4899",
     green: "#4ADE80",
   },
+  game: {
+    geo: "#8B5CF6",
+    geo2: "#3B82F6",
+    hl: "#EC4899",
+    hl2: "#FBBF24",
+  },
   border: {
     default: "#1E293B",
     strong: "#334155",

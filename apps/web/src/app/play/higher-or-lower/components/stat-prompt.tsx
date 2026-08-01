@@ -43,7 +43,7 @@ function CountryCard({ country, highlight }: { country: PublicCountry; highlight
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className={`flex flex-1 flex-col items-center gap-2 rounded-radius-2xl border bg-surface-base p-5 ${
+      className={`flex flex-1 flex-col items-center gap-2 rounded-2xl border bg-surface-base p-5 ${
         highlight ? "border-brand-violet/40" : "border-border-default"
       }`}
     >

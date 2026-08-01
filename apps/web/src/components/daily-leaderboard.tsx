@@ -99,11 +99,11 @@ export function DailyLeaderboard({ game, gameTitle }: DailyLeaderboardProps) {
           </div>
         </div>
       ) : scores.length === 0 ? (
-        <div className="rounded-radius-xl border border-border-default bg-surface-base px-6 py-12 text-center">
+        <div className="rounded-xl border border-border-default bg-surface-base px-6 py-12 text-center">
           <p className="text-sm text-text-muted">No scores yet today. Be the first!</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-radius-xl border border-border-default bg-surface-base">
+        <div className="overflow-hidden rounded-xl border border-border-default bg-surface-base">
           <AnimatePresence mode="popLayout">
             {scores.map((entry, i) => {
               const rank = i + 1;
@@ -151,7 +151,7 @@ export function DailyLeaderboard({ game, gameTitle }: DailyLeaderboardProps) {
               <button
                 onClick={fetchMore}
                 disabled={loadingMore}
-                className="inline-flex h-9 items-center gap-1.5 rounded-radius-md border border-border-default bg-surface-base px-4 text-xs font-medium text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border-default bg-surface-base px-4 text-xs font-medium text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {loadingMore ? (
                   <>

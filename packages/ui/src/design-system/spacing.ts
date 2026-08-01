@@ -30,7 +30,8 @@ export const shadows = {
   sm: "0 2px 8px rgba(0,0,0,0.20)",
   md: "0 8px 24px rgba(0,0,0,0.25)",
   lg: "0 20px 60px rgba(0,0,0,0.30)",
-  neon: "0 0 40px rgba(139,92,246,0.15)",
+  glowViolet: "0 0 60px rgba(139,92,246,0.25)",
+  glowPink: "0 0 60px rgba(236,72,153,0.22)",
 } as const;
 
 export const breakpoints = {

@@ -27,7 +27,7 @@ export default function Error({
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 text-center">
-      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-radius-2xl border border-border-default bg-surface-base">
+      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-border-default bg-surface-base">
         <span className="text-4xl font-bold tracking-tight text-status-error">!</span>
       </div>
       <h1 className="text-3xl font-bold tracking-tight text-text-primary">
@@ -39,13 +39,13 @@ export default function Error({
       <div className="mt-8 flex items-center gap-3">
         <button
           onClick={reset}
-          className="inline-flex h-12 items-center gap-2 rounded-radius-md bg-gradient-to-r from-brand-violet to-brand-blue px-6 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="inline-flex h-12 items-center gap-2 rounded-md bg-gradient-to-r from-brand-violet to-brand-blue px-6 text-sm font-semibold text-white transition-opacity hover:opacity-90"
         >
           Try again{countdown > 0 ? ` (${countdown}s)` : ""}
         </button>
         <Link
           href="/"
-          className="inline-flex h-12 items-center rounded-radius-md border border-border-default px-6 text-sm font-semibold text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
+          className="inline-flex h-12 items-center rounded-md border border-border-default px-6 text-sm font-semibold text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
         >
           Back to games
         </Link>

@@ -1,7 +1,7 @@
 export default function GameLoading() {
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 text-center">
-      <div className="relative mb-6 h-24 w-full max-w-xs overflow-hidden rounded-radius-2xl bg-surface-base">
+      <div className="relative mb-6 h-24 w-full max-w-xs overflow-hidden rounded-2xl bg-surface-base">
         <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/[0.04] to-transparent" />
       </div>
       <div className="mb-6 flex items-center gap-1">

@@ -61,14 +61,14 @@ export function ProfileModal({ open, onClose, currentUsername, onSave, onGenerat
         initial={{ scale: 0.95, opacity: 0, y: 10 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="mx-4 w-full max-w-sm rounded-radius-2xl border border-border-default bg-surface-base p-6 shadow-lg"
+        className="mx-4 w-full max-w-sm rounded-2xl border border-border-default bg-surface-base p-6 shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-bold tracking-tight text-text-primary">Profile</h2>
           <button
             onClick={onClose}
-            className="rounded-radius-md p-1.5 text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
+            className="rounded-md p-1.5 text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
           >
             <X className="size-5" />
           </button>
@@ -91,7 +91,7 @@ export function ProfileModal({ open, onClose, currentUsername, onSave, onGenerat
               maxLength={20}
               autoComplete="off"
               spellCheck={false}
-              className="h-[48px] w-full rounded-radius-lg border border-border-strong bg-surface-elevated px-4 text-base text-text-primary outline-none transition-all placeholder:text-text-subtle focus:border-brand-violet focus:ring-4 focus:ring-brand-violet/12"
+              className="h-[48px] w-full rounded-lg border border-border-strong bg-surface-elevated px-4 text-base text-text-primary outline-none transition-all placeholder:text-text-subtle focus:border-brand-violet focus:ring-4 focus:ring-brand-violet/12"
             />
             {error ? (
               <p className="mt-1.5 text-xs text-status-error">{error}</p>
@@ -105,7 +105,7 @@ export function ProfileModal({ open, onClose, currentUsername, onSave, onGenerat
             <button
               type="button"
               onClick={handleGenerate}
-              className="flex items-center justify-center gap-1.5 rounded-radius-md border border-border-default px-4 py-2.5 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
+              className="flex items-center justify-center gap-1.5 rounded-md border border-border-default px-4 py-2.5 text-sm text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
             >
               <Sparkles className="size-4" />
               Random
