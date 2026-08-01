@@ -47,83 +47,74 @@ export function RoundEndOverlay({ data, playerId, myGuess }: RoundEndOverlayProp
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-8">
-        <div className="space-y-4 text-center">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.3 }}
-            className="space-y-1"
-          >
-            <p className="text-lg font-bold">
-              {guessedCorrectly
-                ? "You got it! +1 pt"
-                : data.winners.length > 0
-                  ? `${data.winners.length} ${data.winners.length === 1 ? "stranger" : "strangers"} got it right!`
-                  : "Time's up!"}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              The answer was{" "}
-              <span className={`font-semibold ${data.answer === "higher" ? "text-emerald-400" : "text-red-400"}`}>
-                {data.answer.toUpperCase()}
-              </span>
-            </p>
-          </motion.div>
-
-          <div className="flex items-stretch gap-3">
-            <RevealCard
-              country={data.countryA}
-              stat={data.stat}
-              isLarger={data.answer === "higher"}
-            />
-            <div className="flex items-center text-xs font-bold text-text-muted">VS</div>
-            <RevealCard
-              country={data.countryB}
-              stat={data.stat}
-              isLarger={data.answer === "lower"}
-            />
-          </div>
-
-          <p className="text-xs text-muted-foreground">
-            {data.countryA.name} has a {data.answer} {statLabel(data.stat)} than{" "}
-            {data.countryB.name}
-          </p>
-        </div>
-
-        {data.winners.length > 0 ? (
-          <div className="rounded-xl bg-white/5 px-3 py-2">
-            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Correct guesses
-            </p>
-            <div className="mt-1 flex flex-wrap gap-1.5">
-              {data.winners.map((w) => (
-                <span
-                  key={w.playerId}
-                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ${
-                    w.playerId === playerId
-                      ? "bg-brand-violet/20 text-brand-violet"
-                      : "bg-green-500/15 text-green-400"
-                  }`}
-                >
-                  {w.username}
-                  <span className="text-[10px] opacity-70">
-                    {(w.time / 1000).toFixed(1)}s
-                  </span>
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-4 px-4 py-6 sm:px-6 sm:py-8">
+        <div className="rounded-3xl border border-border-default bg-surface-base/80 p-6 shadow-lg sm:p-8">
+          <div className="space-y-4 text-center">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, duration: 0.3 }}
+              className="space-y-1"
+            >
+              <p className="text-lg font-bold">
+                {guessedCorrectly
+                  ? "You got it! +1 pt"
+                  : data.winners.length > 0
+                    ? `${data.winners.length} ${data.winners.length === 1 ? "stranger" : "strangers"} got it right!`
+                    : "Time's up!"}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                The answer was{" "}
+                <span className={`font-semibold ${data.answer === "higher" ? "text-emerald-400" : "text-red-400"}`}>
+                  {data.answer.toUpperCase()}
                 </span>
-              ))}
-            </div>
-          </div>
-        ) : null}
+              </p>
+            </motion.div>
 
-        <div className="flex flex-col items-center gap-1.5">
-          <p className="text-xs text-text-muted">
-            Next round in <span className="font-mono font-bold tabular-nums">{seconds}s</span>
-          </p>
-          <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-brand-violet transition-all duration-100 ease-linear"
-              style={{ width: `${progress * 100}%` }}
-            />
+            <div className="flex items-stretch gap-3">
+              <RevealCard country={data.countryA} stat={data.stat} isLarger={data.answer === "higher"} />
+              <div className="flex items-center text-xs font-bold text-text-muted">VS</div>
+              <RevealCard country={data.countryB} stat={data.stat} isLarger={data.answer === "lower"} />
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              {data.countryA.name} has a {data.answer} {statLabel(data.stat)} than {data.countryB.name}
+            </p>
+
+            {data.winners.length > 0 ? (
+              <div className="rounded-xl bg-white/5 px-3 py-2">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Correct guesses
+                </p>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {data.winners.map((w) => (
+                    <span
+                      key={w.playerId}
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ${
+                        w.playerId === playerId
+                          ? "bg-brand-violet/20 text-brand-violet"
+                          : "bg-green-500/15 text-green-400"
+                      }`}
+                    >
+                      {w.username}
+                      <span className="text-[10px] opacity-70">{(w.time / 1000).toFixed(1)}s</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mt-6 flex flex-col items-center gap-1.5">
+            <p className="text-xs text-text-muted">
+              Next round in <span className="font-mono font-bold tabular-nums">{seconds}s</span>
+            </p>
+            <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-brand-violet transition-all duration-100 ease-linear"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
           </div>
         </div>
       </div>

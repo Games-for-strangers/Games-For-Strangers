@@ -13,6 +13,7 @@ import type { RoundEndEvent } from "@/hooks/use-socket";
 import { useSocket } from "@/hooks/use-socket";
 import { useSoundEffect } from "@/hooks/use-sound-effect";
 import { useHintTokens } from "@/hooks/use-hint-tokens";
+import { getAccent } from "@/lib/game-accents";
 import type { GuessFeedbackState } from "./components/guess-feedback";
 import { GuessFeedback } from "./components/guess-feedback";
 import { GuessInput } from "./components/guess-input";
@@ -93,6 +94,8 @@ export default function WhereIsThis() {
 
   const [cfToken, setCfToken] = useState<string | null>(null);
 
+  const accent = getAccent("geoguesser-race");
+
   const socket = useSocket({
     gameId: "geoguesser-race",
     playerInfo: animalIdentity && playerIdentity
@@ -151,34 +154,40 @@ export default function WhereIsThis() {
         onGenerate={generateAndSetUsername}
       />
       <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-default px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-text-primary">GeoGuesser Race</span>
-            <span className="flex items-center gap-1.5 text-xs text-text-muted">
-              <span className="h-2 w-2 rounded-full bg-presence-online" />
-              <span>{playerCount.toLocaleString()} online</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            {playerIdentity.username ? (
-              <span className="hidden text-xs text-text-muted sm:inline">{playerIdentity.username}</span>
-            ) : null}
-            <span className="text-xs text-text-muted">
-              Score: <span className="font-semibold text-text-primary">{myScore}</span>
-            </span>
-            <AvatarPicker
-              currentAnimal={animalIdentity.animal}
-              currentColor={animalIdentity.color}
-              allAnimals={allAnimals}
-              allColors={allColors}
-              onSelectAnimal={setAnimal}
-              onSelectColor={(color) => setIdentity({ animal: animalIdentity.animal, color })}
-            />
-            <IdentityDisplay animal={animalIdentity.animal} color={animalIdentity.color} />
+        <div className="mx-4 mt-4 rounded-2xl border border-border-default bg-surface-base/70 px-4 py-3 backdrop-blur sm:mx-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <span className={`text-sm font-semibold ${accent.text}`}>GeoGuesser Race</span>
+              <span className="flex items-center gap-1.5 text-xs text-text-muted">
+                <span className="h-2 w-2 rounded-full bg-presence-online" />
+                <span>{playerCount.toLocaleString()} online</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              {playerIdentity.username ? (
+                <span className="hidden text-xs text-text-muted sm:inline">{playerIdentity.username}</span>
+              ) : null}
+              <span className="rounded-full bg-white/5 px-3 py-1 font-mono text-xs tabular-nums text-text-muted">
+                {myScore} pts
+              </span>
+              <AvatarPicker
+                currentAnimal={animalIdentity.animal}
+                currentColor={animalIdentity.color}
+                allAnimals={allAnimals}
+                allColors={allColors}
+                onSelectAnimal={setAnimal}
+                onSelectColor={(color) => setIdentity({ animal: animalIdentity.animal, color })}
+              />
+              <IdentityDisplay animal={animalIdentity.animal} color={animalIdentity.color} />
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="relative mx-4 mb-4 mt-4 flex flex-1 flex-col overflow-hidden rounded-3xl border border-border-default bg-surface-base/50 sm:mx-6">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
+            <div className="absolute -inset-24 bg-brand-violet/5 blur-3xl" />
+          </div>
+
           {phase === "connecting" || phase === "waiting" ? (
             <div className="flex flex-1 items-center justify-center">
               <LoadingScreen

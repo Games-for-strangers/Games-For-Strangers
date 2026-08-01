@@ -57,7 +57,7 @@ export function RoundEndOverlay({ data, playerId }: RoundEndOverlayProps) {
     >
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-8">
         {/* Answer card */}
-        <div className="space-y-4 text-center">
+        <div className="space-y-4 rounded-3xl border border-border-default bg-surface-base/80 p-6 shadow-lg sm:p-8 text-center">
           {data.winner ? (
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
