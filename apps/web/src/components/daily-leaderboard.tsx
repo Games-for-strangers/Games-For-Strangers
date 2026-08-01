@@ -21,7 +21,14 @@ interface LeaderboardResponse {
 
 const PAGE_SIZE = 25;
 
-export function DailyLeaderboard() {
+interface DailyLeaderboardProps {
+  /** Game slug to fetch scores for */
+  game: string;
+  /** Shown above the leaderboard so multiple games can be told apart */
+  gameTitle?: string;
+}
+
+export function DailyLeaderboard({ game, gameTitle }: DailyLeaderboardProps) {
   const { identity: playerIdentity } = usePlayerIdentity();
   const { identity: animalIdentity } = useAnonymousIdentity();
   const [scores, setScores] = useState<ScoreEntry[]>([]);
@@ -36,7 +43,7 @@ export function DailyLeaderboard() {
     setLoading(true);
     try {
       const res = await fetch(
-        `${serverUrl}/api/scores/daily?game=geoguesser-race&limit=${PAGE_SIZE}&offset=0`,
+        `${serverUrl}/api/scores/daily?game=${game}&limit=${PAGE_SIZE}&offset=0`,
       );
       if (res.ok) {
         const data: LeaderboardResponse = await res.json();
@@ -46,13 +53,13 @@ export function DailyLeaderboard() {
       }
     } catch {}
     setLoading(false);
-  }, [serverUrl]);
+  }, [serverUrl, game]);
 
   const fetchMore = useCallback(async () => {
     setLoadingMore(true);
     try {
       const res = await fetch(
-        `${serverUrl}/api/scores/daily?game=geoguesser-race&limit=${PAGE_SIZE}&offset=${offset}`,
+        `${serverUrl}/api/scores/daily?game=${game}&limit=${PAGE_SIZE}&offset=${offset}`,
       );
       if (res.ok) {
         const data: LeaderboardResponse = await res.json();
@@ -61,7 +68,7 @@ export function DailyLeaderboard() {
       }
     } catch {}
     setLoadingMore(false);
-  }, [serverUrl, offset]);
+  }, [serverUrl, game, offset]);
 
   useEffect(() => {
     fetchInitial();
@@ -78,7 +85,9 @@ export function DailyLeaderboard() {
     <section className="mt-16">
       <div className="mb-6 text-center">
         <h2 className="text-lg font-bold tracking-tight text-text-primary">Today&apos;s Leaderboard</h2>
-        <p className="mt-1 text-xs text-text-muted">Top strangers of the day</p>
+        <p className="mt-1 text-xs text-text-muted">
+          {gameTitle ? `${gameTitle} — top strangers of the day` : "Top strangers of the day"}
+        </p>
       </div>
 
       {loading ? (

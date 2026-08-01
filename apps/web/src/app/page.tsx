@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, HelpCircle } from "lucide-react";
+import { ArrowUpDown, Globe, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/page-transition";
 import { useEffect, useState } from "react";
@@ -22,11 +22,11 @@ const GAMES = [
     href: "/play/geoguesser-race",
   },
   {
-    id: "coming-soon-a",
-    title: "Coming Soon",
-    description: "A new game is on its way.",
-    icon: HelpCircle,
-    comingSoon: true,
+    id: "higher-or-lower",
+    title: "Higher or Lower",
+    description: "Does Japan have a higher population than Germany? Call it right to score.",
+    icon: ArrowUpDown,
+    href: "/play/higher-or-lower",
   },
   {
     id: "coming-soon-b",
@@ -103,26 +103,28 @@ export default function Home() {
           variants={{ animate: { transition: { staggerChildren: 0.08 } } }}
         >
           {GAMES.map((game) => {
-            const slug = game.href?.replace("/play/", "");
+            const slug = "href" in game ? game.href.replace("/play/", "") : undefined;
+            const comingSoon = "comingSoon" in game ? game.comingSoon : false;
             const activePlayers = slug ? playerCounts[slug] : 0;
             return (
               <GameCard
                 key={game.id}
                 title={game.title}
                 description={
-                  activePlayers > 0 && !game.comingSoon
+                  activePlayers > 0 && !comingSoon
                     ? `${game.description} - ${activePlayers} playing now`
                     : game.description
                 }
                 icon={game.icon}
                 href={"href" in game ? game.href : undefined}
-                comingSoon={"comingSoon" in game ? game.comingSoon : undefined}
+                comingSoon={comingSoon || undefined}
               />
             );
           })}
         </motion.div>
 
-        <DailyLeaderboard />
+        <DailyLeaderboard game="geoguesser-race" gameTitle="GeoGuesser Race" />
+        <DailyLeaderboard game="higher-or-lower" gameTitle="Higher or Lower" />
 
         <footer className="mb-8 mt-16 text-center text-xs text-muted-foreground">
           No accounts. No tracking. Just play.
